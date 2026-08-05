@@ -8,7 +8,7 @@ orb status 2>&1 || true
 
 echo
 echo "== VM '${VM}' =="
-orb list 2>&1 | (head -1; grep -E "^${VM}[[:space:]]" || echo "(not found)")
+orb list 2>&1 | grep -E "^${VM}[[:space:]]" || echo "(VM '${VM}' not found or not running)"
 
 echo
 echo "== Hermes =="

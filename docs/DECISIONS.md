@@ -1,0 +1,48 @@
+# Design decisions
+
+A running log of why this setup is the way it is.
+
+## 2026-08-03/04 — Initial build
+
+### Why Hermes Agent
+Wanted a self-hostable, single-user autonomous agent I fully own (tools, memory,
+skills, crons) — not a team platform (evaluated YC's `qm`, too company-scale for
+one person) and not just a framework to hand-build (LangGraph / Claude Agent SDK).
+Hermes is MIT, model-agnostic, ships 40+ tools + a learning/skills loop, and runs
+locally. See the conversation research for the full comparison.
+
+### Why an OrbStack **VM** (not Docker, not host install)
+- Hermes ships **no official Docker image**, so a container path would mean hand-
+  writing and maintaining a Dockerfile.
+- Its installer is a `curl … | bash` that installs onto the host — the opposite of
+  the isolation goal.
+- An OrbStack **Linux VM** gives real isolation from macOS, contains the installer
+  itself, starts fast, is light on battery, and is disposable (`orb delete hermes`).
+- Chosen over Docker Desktop as the OrbStack runtime for speed/battery on Apple Silicon.
+
+VM: `hermes` — Ubuntu 26.04 LTS, arm64.
+
+### Why Claude via the **direct Anthropic provider**
+- Wanted Claude-quality reasoning. Hermes's `config.yaml` supports a native
+  `anthropic` provider (`ANTHROPIC_API_KEY`), so no OpenRouter middleman is needed.
+- Default model set to `claude-opus-4-8` (most capable). `claude-sonnet-5` is the
+  cheaper fallback for an always-on agent.
+- There is no separate "Claude Code API" — Claude Code uses the same Anthropic API;
+  a Pro/Max subscription is not a third-party agent credential.
+
+### Terminal backend = `local`
+Hermes runs its shell/file tools *inside the VM* (`terminal.backend: local`). Since
+the VM is already the sandbox, this is the simplest safe option — no nested
+container needed.
+
+### Secrets handling
+- Keys live only in the VM's `~/.hermes/.env` (chmod 600), entered via a silent
+  `read -rsp` prompt so they never touch the chat transcript or host repo.
+- Host-side backups redact all secret values before writing.
+
+## Open / next
+- Optional messaging gateway (Telegram/Slack) via `hermes gateway install`.
+- Crons for background automation.
+- Decide cost ceiling → maybe default to `claude-sonnet-5`.
+- Always-on: currently tied to the Mac being awake + OrbStack running; revisit a
+  dedicated always-on host later if needed.

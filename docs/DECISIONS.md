@@ -2,6 +2,16 @@
 
 A running log of why this setup is the way it is.
 
+## North star (product goal)
+
+Build this into an **open-source project that lets a non-technical person create
+their own private personal agent in minutes.** Everything in this doc that we did by
+hand is, long-term, work the project should automate for the user: provisioning the
+isolated environment, installing and registering the messaging bridge, standing up
+services, and writing config — behind a guided, safe, few-step setup. Re-evaluate
+every design choice below against: "how do we make this push-button and safe for
+someone who can't use a terminal?"
+
 ## 2026-08-03/04 — Initial build
 
 ### Why Hermes Agent

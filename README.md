@@ -4,6 +4,20 @@ Host-side **control folder** ("cockpit") for a self-hosted [Hermes Agent](https:
 
 The agent itself is **not** in this folder — it runs sandboxed in the VM. This repo holds the helper scripts, decisions, and docs used to manage it.
 
+## Vision
+
+The goal is to grow this into an open-source project that lets **anyone — including
+non-technical people — stand up their own private, self-hosted personal AI assistant
+in minutes.** You bring a chat app (Signal today, iMessage soon) and a model API key;
+the project handles the rest — provisioning the sandboxed environment, wiring the
+messaging bridge, registering the number, and configuring the agent — through a
+guided, few-step setup.
+
+Today it's a working single-user build assembled by hand (see [`docs/`](docs/)). The
+roadmap is to package that same flow into a **push-button installer + setup wizard**,
+so the manual steps (VM provisioning, `signal-cli` registration, services, `.env`)
+happen automatically, safely, and with sensible defaults.
+
 ## Architecture
 
 ```

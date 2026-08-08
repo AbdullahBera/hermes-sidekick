@@ -1,4 +1,4 @@
-# hermes-agent
+# hermes-sidekick
 
 Host-side **control folder** ("cockpit") for a self-hosted [Hermes Agent](https://github.com/NousResearch/hermes-agent) running inside an isolated OrbStack Linux VM, using **Claude (Opus 4.8)** as its model.
 
@@ -7,7 +7,7 @@ The agent itself is **not** in this folder — it runs sandboxed in the VM. This
 ## Architecture
 
 ```
-macOS host (~/Desktop/projects/hermes-agent)   OrbStack VM "hermes" (Ubuntu 26.04, isolated)
+macOS host (~/Desktop/projects/hermes-sidekick)   OrbStack VM "hermes" (Ubuntu 26.04, isolated)
 ├── scripts/    thin `orb run` wrappers   ──▶   ~/.hermes/
 ├── docs/       decisions + redacted backups     ├── config.yaml   (model = claude-opus-4-8)
 └── .env.example  documents VM keys              ├── .env          (secrets, chmod 600, gitignored)

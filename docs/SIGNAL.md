@@ -28,30 +28,36 @@ sudo cp /tmp/libsignal_jni.so /usr/lib/aarch64-linux-gnu/libsignal_jni.so
 signal-cli listAccounts   # clean exit, no native error = fixed
 ```
 
-## Registration (pending — needs the GV number, a captcha, and the voice code)
+## Registration
 
-Signal requires a captcha for registration. Google Voice needs **voice** verification
-(SMS often isn't delivered to GV).
+Signal requires a captcha, and **SMS must be requested before voice** (a voice-first
+request is rejected). Google Voice receives the SMS fine — use `--voice` only as a
+fallback if the SMS never arrives. Captcha tokens are single-use and the registration
+window is short, so verify promptly.
 
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
 ACC=+1XXXXXXXXXX          # the agent's Google Voice number, E.164
 
-# 1. Get a captcha token: open in a browser
-#    https://signalcaptchas.org/registration/generate.html
-#    solve it, then copy the "Open Signal" link — it's signalcaptcha://<TOKEN>
-# 2. Register with voice verification:
-signal-cli -a "$ACC" register --voice --captcha "signalcaptcha://<TOKEN>"
-# 3. Signal calls the GV number and reads a 6-digit code:
+# 1. Captcha token: open https://signalcaptchas.org/registration/generate.html
+#    solve it, right-click "Open Signal" -> Copy Link -> signalcaptcha://<TOKEN>
+# 2. Request the SMS code (add --voice ONLY as a fallback if SMS never arrives):
+signal-cli -a "$ACC" register --captcha "signalcaptcha://<TOKEN>"
+# 3. Read the 6-digit code from Google Voice, then verify promptly:
 signal-cli -a "$ACC" verify <CODE>
 ```
 
-## Run the daemon (after registration)
+## Run the daemon (systemd service in the VM)
+
+Runs as `/etc/systemd/system/signal-cli.service` (`Restart=always`, enabled at boot),
+exposing JSON-RPC over HTTP on loopback:
 
 ```bash
 signal-cli -a "$ACC" daemon --http 127.0.0.1:8080
-# (will be daemonized as a background service so it survives reboots)
 ```
+
+The Hermes gateway is likewise a system service (`hermes-gateway`), so both come back
+after a VM reboot.
 
 ## Hermes `~/.hermes/.env` — Signal block
 
@@ -63,7 +69,25 @@ SIGNAL_ALLOW_ALL_USERS=false
 SIGNAL_HOME_CHANNEL=<your personal number>    # proactive/cron delivery target
 ```
 
+## Recommended agent config (clean, text-native replies)
+
+Set in the VM's `~/.hermes/config.yaml` so replies read like a person texting, not a
+chatbot dumping tool logs:
+
+```yaml
+model:
+  default: anthropic/claude-sonnet-5   # cheap + capable for an always-on assistant
+display:
+  tool_progress: off                   # don't narrate tool calls
+  interim_assistant_messages: false    # no "let me check…" filler messages
+  busy_ack_detail: false
+```
+
+Plus `SIGNAL_REACTIONS=false` in `~/.hermes/.env` (no 👀 reactions on inbound
+messages). The texting persona lives in `~/.hermes/SOUL.md` — a starting template is
+in [`config/SOUL.md`](../config/SOUL.md).
+
 ## Status
-- ✅ Tooling installed and native lib verified.
-- ⬜ Registration (blocked on captcha + voice code — interactive).
-- ⬜ Daemon service + `.env` wiring + `hermes gateway` round-trip test.
+- ✅ Tooling, registration, daemon, and gateway — **live**; the agent responds on Signal.
+- ✅ Model `claude-sonnet-5`; web search on (keyless DuckDuckGo); clean text-only replies.
+- ⬜ Next: integrations (calendar / email / tasks via MCP), proactivity, persistent memory.

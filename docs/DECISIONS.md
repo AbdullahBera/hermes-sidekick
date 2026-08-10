@@ -50,6 +50,16 @@ container needed.
   `read -rsp` prompt so they never touch the chat transcript or host repo.
 - Host-side backups redact all secret values before writing.
 
+### Gmail integration — self-hosted, read + draft, ask-first (2026-08-09)
+Chose [`google_workspace_mcp`](https://github.com/taylorwilsdon/google_workspace_mcp)
+running in the VM with the user's *own* Google OAuth client (Desktop app) — no
+third-party broker (evaluated Composio; rejected for privacy). Granted scope: read +
+labels + drafts (`gmail.readonly`/`labels`/`compose`); `gmail.modify` intentionally
+not granted. **No send** tool exists and the scope can't send. A **hard rule** in
+`SOUL.md` forbids any email action (draft/label/change) without explicit
+confirmation. App published "In production" so the refresh token persists. Details:
+`docs/GMAIL.md`.
+
 ## Open / next
 - Optional messaging gateway (Telegram/Slack) via `hermes gateway install`.
 - Crons for background automation.

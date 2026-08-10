@@ -67,5 +67,5 @@ macOS host (~/Desktop/projects/hermes-sidekick)   OrbStack VM "hermes" (Ubuntu 2
 
 ## Status
 
-✅ VM built · ✅ Hermes v0.20.0 installed · ✅ Claude Opus 4.8 reachable (smoke test passed).
-Next: optional messaging gateway (Telegram/Slack), crons, and skill customization.
+✅ VM + Hermes v0.20.0 · ✅ **Signal** transport live · ✅ model `claude-sonnet-5` · ✅ web search (keyless) · ✅ **Gmail** (read + draft, never send; asks before any action — see [docs/GMAIL.md](docs/GMAIL.md)).
+Next: Calendar integration, proactivity (morning brief), and persistent memory.

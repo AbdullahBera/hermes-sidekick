@@ -1,0 +1,35 @@
+# Example hermes-sidekick profile.
+# The real one lives in the user's VM at ~/.hermes/sidekick/profile.yaml (never in the repo).
+# It holds CHOICES + SETTINGS only — no secrets. See docs/PROFILE.md.
+version: 1
+
+core:
+  model: claude-sonnet-5           # claude-sonnet-5 | claude-opus-4-8 | claude-haiku-4-5
+  timezone: America/Los_Angeles
+  quiet_hours: "22:00-07:00"       # no proactive messages inside this local window
+  rate_limit_per_day: 6
+
+channels:
+  signal:
+    enabled: true
+    allowed_users: ["+1XXXXXXXXXX"]
+    home_channel: "+1XXXXXXXXXX"
+    reactions: false
+
+connectors:
+  gmail:
+    enabled: true
+    important_senders: []          # e.g. ["boss@work.com", "mom@family.com"]
+    summary_style: concise
+  calendar:
+    enabled: true
+    default_calendar: primary
+
+automations:
+  morning-brief:
+    enabled: true
+    time: "08:00"
+    include: [calendar, email]
+  birthday-reminder:
+    enabled: false
+    lead_days: 1

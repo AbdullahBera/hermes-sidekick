@@ -1,0 +1,31 @@
+id: morning-brief
+name: Morning brief
+category: automation
+summary: Each morning, a short brief — today's calendar plus anything important in email.
+
+requires:
+  connectors: [calendar, gmail]   # needs read access to both
+  human: []
+
+security:
+  writes: []            # read-only: it only reads calendar/email and messages YOU
+  ask_first: false      # it only sends you a summary; it never acts on your accounts
+  secrets_location: vm
+
+settings:
+  time: "08:00"                 # local time (see core.timezone)
+  include: [calendar, email]    # what to cover
+  respect_quiet_hours: true
+
+schedule:
+  cron: "0 8 * * *"             # daily 08:00 local; onboarder rewrites from settings.time
+
+runs: prompt.md                 # instructions the agent follows each run
+
+hermes:
+  kind: cron
+
+notes: >
+  Delivers to the channel's home_channel. Read-only; obeys core.quiet_hours and
+  core.rate_limit_per_day. A proactive message must be actionable — if nothing matters it
+  can stay quiet (see prompt.md).

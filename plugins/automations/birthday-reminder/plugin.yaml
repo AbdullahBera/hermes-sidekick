@@ -1,0 +1,29 @@
+id: birthday-reminder
+name: Birthday reminders
+category: automation
+summary: Texts you before a contact's birthday and offers to draft them a message.
+
+requires:
+  connectors: [calendar]        # reads Google's "Birthdays" calendar
+  human: []
+
+security:
+  writes: []            # read-only; drafting (if you say yes) is done via the gmail plugin
+  ask_first: true       # never drafts or sends without your explicit yes
+  secrets_location: vm
+
+settings:
+  lead_days: 1                  # remind this many days ahead
+  respect_quiet_hours: true
+
+schedule:
+  cron: "0 8 * * *"             # daily 08:00 local
+
+runs: prompt.md
+
+hermes:
+  kind: cron
+
+notes: >
+  Birthdays come from Google's auto-populated "Birthdays" calendar (from Contacts).
+  Reminds only; drafting requires the gmail connector and an explicit yes.

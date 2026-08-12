@@ -1,0 +1,41 @@
+id: signal
+name: Signal
+category: channel
+summary: Text your agent over Signal (end-to-end encrypted). Recommended default channel.
+
+requires:
+  connectors: []
+  human:
+    - agent_phone_number    # a SEPARATE number for the agent (e.g. a free Google Voice number)
+    - signal_captcha        # solve a captcha at signalcaptchas.org
+    - verification_code     # 6-digit code via SMS (voice fallback) to the agent number
+
+security:
+  transport: end-to-end-encrypted   # Signal E2E; the relay can't read messages
+  access: allowlist                 # only allowed_users may talk to it
+  writes: [send_message]            # sends only to allowlisted user(s)
+  ask_first: false                  # replying to its owner is the whole point
+  secrets_location: vm              # signal-cli account + keys in ~/.hermes (chmod 600)
+
+setup:
+  - auto:   "Install Java 25 (openjdk-25-jre-headless) + signal-cli in the VM"
+  - auto:   "arm64 fix: drop the matching libsignal_jni.so (exquo build) on java.library.path"
+  - human:  "Get a captcha token at signalcaptchas.org and paste it"
+  - auto:   "signal-cli register --captcha <token>   (request SMS first; voice fallback)"
+  - human:  "Read the 6-digit code sent to the agent number and provide it"
+  - auto:   "signal-cli verify <code>; run 'signal-cli daemon --http' as a systemd service"
+  - auto:   "Set SIGNAL_* env; hermes gateway install --system && start"
+  - verify: "Send one message; gateway log shows webhook -> model -> reply, with no echo"
+
+settings:
+  allowed_users: []         # your personal number(s), E.164
+  home_channel: ""          # where proactive/cron messages are delivered (you)
+  reactions: false          # no emoji reactions on inbound messages
+
+hermes:
+  kind: platform
+  platform: signal
+
+notes: >
+  The agent's number must be DIFFERENT from the number you text from, or Signal's
+  isFromMe echo-suppression can't tell you apart (you'd get an echo loop). See docs/SIGNAL.md.

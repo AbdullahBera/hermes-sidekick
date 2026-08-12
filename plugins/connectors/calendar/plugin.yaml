@@ -1,0 +1,36 @@
+id: calendar
+name: Calendar
+category: connector
+summary: Read your schedule, events, and free/busy. Read-only.
+
+requires:
+  connectors: [gmail]       # reuses the same Google OAuth client + token as Gmail
+  human:
+    - google_calendar_api   # enable the Calendar API in the same project
+    - oauth_consent         # re-approve to add the calendar.readonly scope
+
+security:
+  scopes: [calendar.readonly]
+  writes: []                # read-only for now
+  ask_first: true           # applies if/when create/edit is added (calendar:full)
+  secrets_location: vm
+
+setup:
+  - human:  "Enable the Google Calendar API in the same project"
+  - auto:   "Re-auth with gmail:drafts + calendar:readonly (adds the calendar scope to the token)"
+  - human:  "Approve the consent screen ('See your calendars')"
+  - auto:   "hermes mcp add calendar --command workspace-mcp --args --single-user --permissions calendar:readonly"
+  - verify: "list_calendars returns your calendars"
+
+settings:
+  default_calendar: primary
+
+hermes:
+  kind: mcp
+  server: workspace-mcp
+  permissions: calendar:readonly
+
+notes: >
+  Shares one OAuth client with Gmail (enable Calendar API + re-auth). Read-only now;
+  create/edit is a deliberate later scope bump (calendar:full), gated by ask_first. See
+  docs/CALENDAR.md.

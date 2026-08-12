@@ -18,3 +18,6 @@ docs/backups/*.env.raw
 
 # Logs
 *.log
+
+# Internal strategy notes — never publish
+*.local.md

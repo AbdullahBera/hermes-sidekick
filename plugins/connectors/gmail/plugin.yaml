@@ -1,0 +1,38 @@
+id: gmail
+name: Gmail
+category: connector
+summary: Read and draft email. Never sends.
+
+requires:
+  connectors: []
+  human:
+    - google_oauth_client   # create a Desktop OAuth client (guided); one client also covers Calendar
+    - oauth_consent         # approve the consent screen in the browser
+
+security:
+  scopes: [gmail.readonly, gmail.labels, gmail.compose]
+  writes: [draft, label]
+  ask_first: true           # confirm before any draft or label change
+  send: false               # no send tool is exposed; the agent cannot send mail
+  secrets_location: vm      # ~/.hermes/google-workspace (client JSON + token, chmod 600)
+
+setup:
+  - human:  "Enable the Gmail API; create a Desktop OAuth client; publish app to 'production'; download client_secret.json"
+  - auto:   "uv tool install workspace-mcp (in the VM)"
+  - human:  "Approve the OAuth consent screen (grants the Gmail scopes)"
+  - auto:   "hermes mcp add gmail --command workspace-mcp --args --single-user --permissions gmail:drafts"
+  - verify: "list_gmail_labels returns your labels"
+
+settings:
+  important_senders: []     # who to prioritize in summaries
+  summary_style: concise    # one short line per email
+
+hermes:
+  kind: mcp
+  server: workspace-mcp
+  permissions: gmail:drafts
+
+notes: >
+  Self-hosted google_workspace_mcp with the user's OWN OAuth client — no third-party
+  broker. Publish the OAuth app to "production" so the refresh token persists (Testing
+  mode expires it weekly). See docs/GMAIL.md.

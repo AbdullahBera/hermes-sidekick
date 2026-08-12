@@ -1,6 +1,6 @@
 # hermes-sidekick
 
-Host-side **control folder** ("cockpit") for a self-hosted [Hermes Agent](https://github.com/NousResearch/hermes-agent) running inside an isolated OrbStack Linux VM, using **Claude (Opus 4.8)** as its model.
+Host-side **control folder** ("cockpit") for a self-hosted [Hermes Agent](https://github.com/NousResearch/hermes-agent) running inside an isolated OrbStack Linux VM, using **Claude** as its model.
 
 The agent itself is **not** in this folder — it runs sandboxed in the VM. This repo holds the helper scripts, decisions, and docs used to manage it.
 
@@ -17,6 +17,15 @@ Today it's a working single-user build assembled by hand (see [`docs/`](docs/)).
 roadmap is to package that same flow into a **push-button installer + setup wizard**,
 so the manual steps (VM provisioning, `signal-cli` registration, services, `.env`)
 happen automatically, safely, and with sensible defaults.
+
+## Built on Hermes Agent
+
+hermes-sidekick is a thin, security-first product layer on top of
+[Hermes Agent](https://github.com/NousResearch/hermes-agent) by Nous Research (MIT) —
+the engine that does the real work (agent loop, tools, MCP, gateway, crons, memory).
+We curate and orchestrate it; we don't fork it. Please support the upstream project.
+
+The design and plugin model live in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Architecture
 

@@ -4,7 +4,10 @@ Each plugin is a self-contained unit the **AI onboarder installs** and a **contr
 authors**. Structure:
 
 ```
-plugins/<category>/<id>/plugin.yaml
+plugins/<category>/<id>/
+  plugin.yaml     # manifest (structured)
+  recipe.md       # detailed setup steps the onboarder runs
+  prompt.md       # automations only: scheduled-run instructions
 ```
 
 Categories:

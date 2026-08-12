@@ -1,18 +1,18 @@
 # Calendar integration — self-hosted, read-only
 
 Google Calendar is served by the **same** `google_workspace_mcp` setup as Gmail —
-same VM, same OAuth client, same token. See [`GMAIL.md`](GMAIL.md) for the shared
+same VM, same OAuth client, same token. See [the Gmail recipe](../gmail/recipe.md) for the shared
 OAuth/install foundation; this doc covers only the calendar-specific bits.
 
 ## Security posture
 - **Scope:** `calendar.readonly` — read events, list calendars, check free/busy. No create/edit/delete.
 - **No write:** read-only scope + no write tools exposed. Adding create/edit later is a
   deliberate scope bump, and is already covered by the ask-first hard rule in
-  [`config/SOUL.md`](../config/SOUL.md).
+  [`config/SOUL.md`](../../../config/SOUL.md).
 - Registered as a separate Hermes MCP server `calendar` (tools: `list_calendars`,
   `get_events`, `query_freebusy`), sharing the same token as `gmail`.
 
-## Setup (after the Google foundation in GMAIL.md)
+## Setup (after the Google foundation in the Gmail recipe)
 
 ### 1. Enable the Calendar API (browser)
 Same GCP project → enable **Google Calendar API**:

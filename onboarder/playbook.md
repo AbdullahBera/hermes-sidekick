@@ -16,7 +16,7 @@ only for the few things a human must do. You have shell access to their **isolat
 
 ## Inputs you read
 - Plugin catalog: `plugins/<category>/<id>/plugin.yaml`
-- Each plugin's detailed recipe: `docs/<PLUGIN>.md` (SIGNAL, GMAIL, CALENDAR, …)
+- Each plugin's detailed recipe: `plugins/<category>/<id>/recipe.md`
 - Profile schema: `docs/PROFILE.md`
 
 ## Flow
@@ -42,7 +42,7 @@ Given its `plugin.yaml`, run the `setup` steps in order, honoring the `security`
 - `human:`  give clear, numbered instructions; wait; help if they get stuck.
 - `verify:` run the check; only continue if it passes; otherwise diagnose and fix.
 
-Use the plugin's `docs/<PLUGIN>.md` as the detailed recipe. Never grant more scope than the
+Use the plugin's own `recipe.md` as the detailed recipe. Never grant more scope than the
 plugin declares. Store every secret only in the VM.
 
 ## Human checkpoints (unavoidable — guide them, don't skip)

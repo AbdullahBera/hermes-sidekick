@@ -33,4 +33,4 @@ hermes:
 notes: >
   Shares one OAuth client with Gmail (enable Calendar API + re-auth). Read-only now;
   create/edit is a deliberate later scope bump (calendar:full), gated by ask_first. See
-  docs/CALENDAR.md.
+  recipe.md.

@@ -1,0 +1,39 @@
+id: imessage
+name: iMessage (BlueBubbles)
+category: channel
+status: planned          # not yet activated; recipe + network bridge are prepped
+summary: Text your agent over iMessage via a self-hosted BlueBubbles server on a Mac.
+
+requires:
+  connectors: []
+  human:
+    - dedicated_mac         # a Mac that stays awake 24/7, running Messages
+    - secondary_apple_id    # a SEPARATE Apple ID for the agent (avoids the isFromMe echo loop)
+    - bluebubbles_server    # install BlueBubbles + the Private API helper
+
+security:
+  transport: apple-imessage   # E2E between Apple devices; BlueBubbles reads chat.db locally on the Mac
+  access: allowlist
+  writes: [send_message]
+  ask_first: false
+  secrets_location: vm        # BlueBubbles password + webhook creds in the VM
+
+setup:
+  - human:  "Set up a Mac that never sleeps, with a SECONDARY Apple ID signed into Messages"
+  - human:  "Install BlueBubbles Server + Private API helper; set a strong server password"
+  - auto:   "Wire the VM <-> Mac bridge (webhook host/port) — see recipe.md"
+  - auto:   "Enable the bluebubbles gateway platform with BLUEBUBBLES_* env"
+  - verify: "Send one message; gateway log shows webhook -> model -> reply, with no echo"
+
+settings:
+  allowed_users: []
+  home_channel: ""
+
+hermes:
+  kind: platform
+  platform: bluebubbles
+
+notes: >
+  Not yet activated in the reference deployment (blocked on a spare Apple ID + an always-on
+  Mac); the network bridge is fully prepped. Signal is the recommended default channel.
+  See recipe.md.

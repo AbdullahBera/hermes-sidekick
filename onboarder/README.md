@@ -6,7 +6,7 @@ things a human must do (approve an OAuth screen, solve a captcha, provide a key)
 
 It:
 - reads the plugin catalog ([`../plugins/`](../plugins/)) and each plugin's detailed recipe
-  ([`../docs/`](../docs/)),
+  (its `recipe.md`),
 - talks the user through what they want, resolves dependencies, runs each chosen plugin's
   `setup`, **verifies every step**, self-heals failures, and
 - writes the user's [profile](../docs/PROFILE.md) as the source of truth.

@@ -85,7 +85,7 @@ display:
 
 Plus `SIGNAL_REACTIONS=false` in `~/.hermes/.env` (no 👀 reactions on inbound
 messages). The texting persona lives in `~/.hermes/SOUL.md` — a starting template is
-in [`config/SOUL.md`](../config/SOUL.md).
+in [`config/SOUL.md`](../../../config/SOUL.md).
 
 ## Status
 - ✅ Tooling, registration, daemon, and gateway — **live**; the agent responds on Signal.

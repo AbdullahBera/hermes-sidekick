@@ -12,7 +12,7 @@ the VM. (Composio and other managed brokers were evaluated and rejected for priv
 - **No send, ever:** no send tool is exposed and the granted scope can't send mail.
 - **Ask-first hard rule:** the agent may read/search/summarize freely, but must ask
   and get an explicit "yes" before any action that writes/changes the mailbox
-  (draft, labels). Enforced in `~/.hermes/SOUL.md` (template: [`config/SOUL.md`](../config/SOUL.md)).
+  (draft, labels). Enforced in `~/.hermes/SOUL.md` (template: [`config/SOUL.md`](../../../config/SOUL.md)).
 - **Secrets are VM-only:** the OAuth client JSON and the user token live in
   `~/.hermes/google-workspace/` (chmod 600). This repo references only paths.
 

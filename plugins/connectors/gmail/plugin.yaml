@@ -35,4 +35,4 @@ hermes:
 notes: >
   Self-hosted google_workspace_mcp with the user's OWN OAuth client — no third-party
   broker. Publish the OAuth app to "production" so the refresh token persists (Testing
-  mode expires it weekly). See docs/GMAIL.md.
+  mode expires it weekly). See recipe.md.

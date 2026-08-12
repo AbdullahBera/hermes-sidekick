@@ -38,4 +38,4 @@ hermes:
 
 notes: >
   The agent's number must be DIFFERENT from the number you text from, or Signal's
-  isFromMe echo-suppression can't tell you apart (you'd get an echo loop). See docs/SIGNAL.md.
+  isFromMe echo-suppression can't tell you apart (you'd get an echo loop). See recipe.md.

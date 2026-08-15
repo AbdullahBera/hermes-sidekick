@@ -3,9 +3,16 @@
 You're sending the user their morning brief over their messaging channel. Same voice as
 always: plain, short, warm, no fluff.
 
-1. If the current local time is inside `core.quiet_hours`, do nothing and stop.
+0. **Load your profile.** Read `~/.hermes/sidekick/profile.yaml` once at the start (it's a
+   small YAML file — read it directly, don't over-think it). It's the source of truth for
+   this user's settings:
+   - `core.timezone` and `core.quiet_hours` apply to every automation.
+   - *This* automation's settings live under `automations.morning-brief` (e.g. `include`);
+     if a key is missing, fall back to this plugin's defaults.
+   - `connectors.gmail.important_senders` is who matters most.
+1. If the current local time (`core.timezone`) is inside `core.quiet_hours`, do nothing and stop.
 2. Read **today's** calendar events (`get_events` for today, `core.timezone`).
-3. If `email` is in `settings.include`, read important/unread mail since yesterday
+3. If `email` is in `automations.morning-brief.include`, read important/unread mail since yesterday
    (one search: important + unread, ~12 max; prioritize `connectors.gmail.important_senders`). Use only the sender/subject/snippet from results — do NOT open or fetch full message bodies.
 4. Compose **one** short message:
    - Open with the day at a glance — number of events + the first/most important one.

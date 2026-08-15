@@ -7,7 +7,7 @@ core:
   model: claude-sonnet-5           # claude-sonnet-5 | claude-opus-4-8 | claude-haiku-4-5
   timezone: America/Los_Angeles
   quiet_hours: "22:00-07:00"       # no proactive messages inside this local window
-  rate_limit_per_day: 6
+  rate_limit_per_day: 6            # SOFT daily ceiling — a judgment guide, not a hard counter
 
 channels:
   signal:

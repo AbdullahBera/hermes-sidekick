@@ -8,47 +8,46 @@ AI onboarder generates it from a conversation; Hermes and the automations read i
   connector credential dirs). The profile records *choices and settings* only.
 - **To change something:** toggle it here and re-run that plugin's recipe.
 
-## Schema
+The **canonical schema is [`../profile.example.yaml`](../profile.example.yaml)** — copy it
+and fill it in. This doc explains what each section *means*; the example is the shape.
 
-```yaml
-version: 1
+> The profile is config only. The separate, *living* "about you" memory the assistant
+> learns over time lives in `USER.md` (a Hermes memory), documented separately.
 
-core:
-  model: claude-sonnet-5         # claude-sonnet-5 | claude-opus-4-8 | claude-haiku-4-5
-  timezone: America/Los_Angeles
-  quiet_hours: "22:00-07:00"     # no proactive messages inside this local window
-  rate_limit_per_day: 6          # max proactive messages/day
+## Field reference
 
-channels:                        # exactly one is typically enabled
-  signal:
-    enabled: true
-    allowed_users: ["+1XXXXXXXXXX"]  # your personal number(s), E.164
-    home_channel: "+1XXXXXXXXXX"     # where proactive messages are delivered (you)
-    reactions: false
+- **`core`** — global settings every automation honors.
+  - `model` — which Claude model runs (`claude-sonnet-5` | `claude-opus-4-8` | `claude-haiku-4-5`).
+  - `timezone` — IANA tz; all "today"/"local time" logic uses it.
+  - `quiet_hours` — `"HH:MM-HH:MM"` local window in which **no** proactive message is sent.
+  - `rate_limit_per_day` — a **soft** daily ceiling on proactive messages. It's a judgment
+    guide, not a hard counter (there's no enforced tally) — the assistant errs toward
+    silence when nothing matters rather than counting.
 
-connectors:
-  gmail:
-    enabled: true
-    important_senders: []
-    summary_style: concise
-  calendar:
-    enabled: true
-    default_calendar: primary
+- **`channels`** — how the user reaches the assistant (typically exactly one enabled).
+  Each has `enabled`, `allowed_users` (E.164 numbers that may talk to it), and
+  `home_channel` (where proactive messages are delivered). `signal` is live; `imessage`
+  is planned (needs an always-on Mac + a secondary Apple ID).
 
-automations:
-  morning-brief:
-    enabled: true
-    time: "08:00"
-    include: [calendar, email]
-  birthday-reminder:
-    enabled: false
-    lead_days: 1
-```
+- **`connectors`** — what the assistant can access. Each has `enabled` mirroring what was
+  wired into Hermes, plus its own settings:
+  - `gmail` — `important_senders` (who to prioritize), `summary_style`.
+  - `calendar` — `default_calendar`. Create/edit is granted but always ask-first.
+  - `contacts` — read-only; also populates Google's "Birthdays" calendar.
+  - `location` — planned (free OpenRouteService key); `units`, `home_address` for
+    "how far" / "leave by" calculations.
 
-## How it's used
-- **Onboarder** — writes it as the final step of setup, and edits it when the user toggles things.
+- **`automations`** — what the assistant does proactively. Each has `enabled` and its own
+  settings (e.g. morning-brief `time` + `include`; birthday-reminder `time` + `lead_days`).
+  These are the user's *actual* values — they override the defaults declared in each
+  plugin's `plugin.yaml`.
+
+## How it's used at runtime
+
+- **Onboarder** — writes the profile as the final step of setup, and edits it when the user
+  toggles things.
+- **Automations** — each run **loads `~/.hermes/sidekick/profile.yaml` first** (step 0 of
+  its `prompt.md`), then honors `core.*` (timezone, quiet_hours) plus its own
+  `automations.<id>` block and any `connectors.*` settings it needs. Missing keys fall back
+  to the plugin's declared defaults.
 - **Channels / connectors** — their `enabled` flags mirror what was wired into Hermes.
-- **Automations** — each reads its schedule + settings, and every automation obeys
-  `core.quiet_hours` and `core.rate_limit_per_day`.
-
-A ready-to-copy example is in [`../profile.example.yaml`](../profile.example.yaml).

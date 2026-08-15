@@ -63,9 +63,7 @@ confirmation. App published "In production" so the refresh token persists. Detai
 ### Calendar integration — self-hosted, read-only (2026-08-10)
 Google Calendar via the same `google_workspace_mcp` + OAuth client as Gmail (same
 token, re-authed to add `calendar.readonly`). Registered as a separate `calendar` MCP
-server (`list_calendars`, `get_events`, `query_freebusy`). Read-only for now;
-create/edit is a deliberate later scope bump (`calendar:full`), already covered by the
-ask-first hard rule. See `plugins/connectors/calendar/recipe.md`.
+server (`list_calendars`, `get_events`, `query_freebusy`). Now read+write (`calendar:full`): create/edit/delete events, gated by the ask-first hard rule. See `plugins/connectors/calendar/recipe.md`.
 
 ## Open / next
 - Optional messaging gateway (Telegram/Slack) via `hermes gateway install`.

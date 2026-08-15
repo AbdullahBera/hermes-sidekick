@@ -1,4 +1,4 @@
-# Calendar integration — self-hosted, read-only
+# Calendar integration — self-hosted, read + write
 
 Google Calendar is served by the **same** `google_workspace_mcp` setup as Gmail —
 same VM, same OAuth client, same token. See [the Gmail recipe](../gmail/recipe.md) for the shared
@@ -27,7 +27,7 @@ export WORKSPACE_MCP_CREDENTIALS_DIR=~/.hermes/google-workspace/.credentials
 export USER_GOOGLE_EMAIL=you@gmail.com
 export WORKSPACE_MCP_PORT=8000 OAUTHLIB_INSECURE_TRANSPORT=1
 
-workspace-mcp --single-user --permissions gmail:drafts calendar:readonly --transport streamable-http &
+workspace-mcp --single-user --permissions gmail:drafts calendar:full --transport streamable-http &
 workspace-cli --url http://localhost:8000/mcp call start_google_auth \
   user_google_email=you@gmail.com service_name=calendar
 # open the consent URL, approve "See your calendars"; token updates. Stop the server after.
@@ -39,7 +39,7 @@ Note: calendar levels are `readonly` or `full` (not `read`).
 echo Y | hermes mcp add calendar \
   --command "$HOME/.local/bin/workspace-mcp" \
   --env GOOGLE_CLIENT_SECRET_PATH=... WORKSPACE_MCP_CREDENTIALS_DIR=... USER_GOOGLE_EMAIL=you@gmail.com \
-  --args --single-user --permissions calendar:readonly
+  --args --single-user --permissions calendar:full
 sudo systemctl restart hermes-gateway
 ```
 

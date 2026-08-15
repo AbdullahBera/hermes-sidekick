@@ -11,7 +11,9 @@ onboarder, composed from opt-in plugins. This roadmap is oriented around one goa
   Contacts (read).
 - **Web search** (keyless).
 - **Automations:** morning brief; birthday reminders (draft-only, you send).
-- **Memory:** a persistent "about you" profile (`USER.md`).
+- **Memory:** a living, two-tier "about you" — a small always-on digest (`USER.md`) plus
+  on-demand detail (`USER_DETAIL.md`); learns durable facts, ask-first on anything private
+  (see [MEMORY.md](MEMORY.md)).
 - **Security:** isolated VM, your own OAuth clients, ask-first on any write, secrets VM-only,
   public repo scanned clean.
 

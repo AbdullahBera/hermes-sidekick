@@ -12,7 +12,7 @@ The **canonical schema is [`../profile.example.yaml`](../profile.example.yaml)**
 and fill it in. This doc explains what each section *means*; the example is the shape.
 
 > The profile is config only. The separate, *living* "about you" memory the assistant
-> learns over time lives in `USER.md` (a Hermes memory), documented separately.
+> learns over time lives in `USER.md` (a Hermes memory) — see [MEMORY.md](MEMORY.md).
 
 ## Field reference
 

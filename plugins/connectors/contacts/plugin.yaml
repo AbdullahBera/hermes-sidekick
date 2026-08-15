@@ -1,0 +1,34 @@
+id: contacts
+name: Contacts
+category: connector
+summary: Read your contacts — find people, numbers, emails, and birthdays. Read-only.
+
+requires:
+  connectors: [gmail]       # reuses the same Google OAuth client + token as Gmail
+  human:
+    - google_people_api     # enable the Google People API in the same project
+    - oauth_consent         # re-approve to add contacts.readonly
+
+security:
+  scopes: [contacts.readonly]
+  writes: []                # read-only
+  ask_first: true           # applies if a write scope is ever added
+  secrets_location: vm
+
+setup:
+  - human:  "Enable the Google People API in the same project"
+  - auto:   "Re-auth to add contacts.readonly to the token"
+  - human:  "Approve the consent screen ('See your contacts')"
+  - auto:   "hermes mcp add contacts --command workspace-mcp --args --single-user --permissions contacts:readonly"
+  - verify: "list_contacts returns your contacts"
+
+settings: {}
+
+hermes:
+  kind: mcp
+  server: workspace-mcp
+  permissions: contacts:readonly
+
+notes: >
+  Shares one OAuth client with Gmail/Calendar. Gives the agent people + birthdays.
+  Read-only.

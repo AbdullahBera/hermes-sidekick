@@ -76,5 +76,5 @@ macOS host (~/Desktop/projects/hermes-sidekick)   OrbStack VM "hermes" (Ubuntu 2
 
 ## Status
 
-✅ VM + Hermes v0.20.0 · ✅ **Signal** transport live · ✅ model `claude-sonnet-5` · ✅ web search (keyless) · ✅ **Gmail** ([read + draft, never send](plugins/connectors/gmail/recipe.md)) · ✅ **Calendar** ([read-only](plugins/connectors/calendar/recipe.md)) — both private, and ask-first on any action.
+✅ VM + Hermes v0.20.0 · ✅ **Signal** transport live · ✅ model `claude-sonnet-5` · ✅ web search (keyless) · ✅ **Gmail** ([read + draft, never send](plugins/connectors/gmail/recipe.md)) · ✅ **Calendar** ([read + write, ask-first](plugins/connectors/calendar/recipe.md)) · ✅ **Contacts** ([read-only](plugins/connectors/contacts/recipe.md)) — all private, ask-first on any write.
 Next: proactivity (morning brief: calendar + flagged email), and persistent memory.

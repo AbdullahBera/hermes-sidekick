@@ -17,7 +17,8 @@ security:
 
 setup:
   - human:  "Get a free OpenRouteService API key (no card) at openrouteservice.org"
-  - auto:   "Add the ORS tool with the key; wire geocode + directions + distance-matrix"
+  - auto:   "Register the ORS MCP server with the key (see hermes.server below — still to be
+             chosen); wire geocode + directions + distance-matrix"
   - verify: "A geocode and a directions query both return results"
 
 settings:
@@ -26,6 +27,9 @@ settings:
 
 hermes:
   kind: mcp
+  server: ""                 # TBD — no ORS MCP server picked yet (build one or adopt an
+                             # existing one); must be pinned before status leaves 'planned'
+  permissions: []            # ORS auth is a single API key, not scopes — read-only either way
 
 notes: >
   OpenStreetMap-based via ORS — free, no card. Great for addresses, distances, ETAs, and

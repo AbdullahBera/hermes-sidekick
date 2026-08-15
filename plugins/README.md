@@ -17,10 +17,12 @@ Categories:
 
 The full plugin contract and design are in
 [../docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md). The manifests here — **Signal, Gmail,
-Calendar** — are the reference examples: real, working setups distilled into the contract.
-Copy one to author a new plugin.
+Calendar, Contacts** — are the reference examples: real, working setups distilled into the
+contract. Copy one to author a new plugin. (**iMessage** and **Location** carry
+`status: planned` — they describe intended setups, not verified ones.)
 
 **Every plugin must:** default to least-privilege scopes, be read-only where possible, set
 `ask_first: true` for anything that writes or acts, keep all secrets in the user's VM
-(`secrets_location: vm`, never in this repo), and include a `verify` step so the onboarder
-can confirm it worked.
+(`secrets_location: vm`, never in this repo), and include a `setup:` block ending in a
+`verify` step so the onboarder can confirm it worked. Automations are not exempt — their
+verify step is a single by-hand run of `prompt.md`.

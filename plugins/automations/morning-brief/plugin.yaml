@@ -12,6 +12,12 @@ security:
   ask_first: false      # it only sends you a summary; it never acts on your accounts
   secrets_location: vm
 
+setup:
+  - human:  "Pick a delivery time and confirm core.timezone is right"
+  - auto:   "Install the cron entry from schedule.cron (rewritten from settings.time);
+             point it at prompt.md"
+  - verify: "Run prompt.md once by hand — a brief arrives at the channel's home_channel"
+
 settings:
   time: "08:00"                 # local time (see core.timezone)
   include: [calendar, email]    # what to cover

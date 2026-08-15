@@ -5,12 +5,14 @@ same VM, same OAuth client, same token. See [the Gmail recipe](../gmail/recipe.m
 OAuth/install foundation; this doc covers only the calendar-specific bits.
 
 ## Security posture
-- **Scope:** `calendar.readonly` — read events, list calendars, check free/busy. No create/edit/delete.
-- **No write:** read-only scope + no write tools exposed. Adding create/edit later is a
-  deliberate scope bump, and is already covered by the ask-first hard rule in
-  [`config/SOUL.md`](../../../config/SOUL.md).
+- **Scope:** `calendar:full` (`calendar`, `calendar.events`) — read events, list calendars,
+  check free/busy, **and** create/edit/delete events.
+- **Write is gated, not absent:** the write scope is granted, so every event change is held
+  behind the ask-first hard rule in [`config/SOUL.md`](../../../config/SOUL.md) — the agent
+  never creates, edits, or deletes an event without your explicit yes.
 - Registered as a separate Hermes MCP server `calendar` (tools: `list_calendars`,
-  `get_events`, `query_freebusy`), sharing the same token as `gmail`.
+  `get_events`, `query_freebusy`, plus the event create/edit/delete tools), sharing the same
+  token as `gmail`.
 
 ## Setup (after the Google foundation in the Gmail recipe)
 
@@ -19,8 +21,8 @@ Same GCP project → enable **Google Calendar API**:
 `https://console.cloud.google.com/flows/enableapi?apiid=calendar-json.googleapis.com`
 
 ### 2. Re-auth to add the calendar scope
-Run the auth server with gmail + calendar permissions and re-approve. This adds
-`calendar.readonly` to the existing token; Gmail access is preserved.
+Run the auth server with gmail + calendar permissions and re-approve. This adds the
+`calendar:full` scopes to the existing token; Gmail access is preserved.
 ```bash
 export GOOGLE_CLIENT_SECRET_PATH=~/.hermes/google-workspace/client_secret.json
 export WORKSPACE_MCP_CREDENTIALS_DIR=~/.hermes/google-workspace/.credentials
@@ -43,6 +45,10 @@ echo Y | hermes mcp add calendar \
 sudo systemctl restart hermes-gateway
 ```
 
-## Adding create/edit later
-Bump to `calendar:full` and re-auth (adds the calendar write scope). The ask-first
-rule already requires confirmation before any event change.
+## Verify
+`list_calendars` returns your calendars, and `get_events` returns today's schedule.
+
+## Narrowing to read-only
+If you'd rather the agent never touch your calendar, swap `calendar:full` for
+`calendar:readonly` in steps 2 and 3 and re-auth. You keep the brief and conflict
+checks; you lose event create/edit/delete.

@@ -31,6 +31,7 @@ hermes:
   permissions: calendar:full
 
 notes: >
-  Shares one OAuth client with Gmail (enable Calendar API + re-auth). Read-only now;
-  create/edit is a deliberate later scope bump (calendar:full), gated by ask_first. See
-  recipe.md.
+  Shares one OAuth client with Gmail (enable Calendar API + re-auth). Read and write:
+  the calendar:full scope is granted, so every create/edit/delete is gated by ask_first —
+  the agent never changes an event without an explicit yes. Prefer read-only? Use
+  calendar:readonly instead; see recipe.md.

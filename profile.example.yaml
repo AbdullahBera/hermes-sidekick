@@ -15,6 +15,10 @@ channels:
     allowed_users: ["+1XXXXXXXXXX"]
     home_channel: "+1XXXXXXXXXX"
     reactions: false
+  imessage:
+    enabled: false                 # planned — needs an always-on Mac + a secondary Apple ID
+    allowed_users: []
+    home_channel: ""
 
 connectors:
   gmail:
@@ -23,7 +27,13 @@ connectors:
     summary_style: concise
   calendar:
     enabled: true
-    default_calendar: primary
+    default_calendar: primary      # create/edit is granted but always ask-first
+  contacts:
+    enabled: true                  # read-only; also fills Google's "Birthdays" calendar
+  location:
+    enabled: false                 # planned — free OpenRouteService key, no card
+    units: metric                  # metric | imperial
+    home_address: ""               # base for 'how far' / 'leave by' calculations
 
 automations:
   morning-brief:
@@ -32,4 +42,5 @@ automations:
     include: [calendar, email]
   birthday-reminder:
     enabled: false
+    time: "08:30"                  # keep off morning-brief's time so they don't pile up
     lead_days: 1

@@ -12,12 +12,21 @@ security:
   ask_first: true       # never drafts or sends without your explicit yes
   secrets_location: vm
 
+setup:
+  - human:  "Confirm Google's 'Birthdays' calendar is visible in your calendar list"
+  - auto:   "Install the cron entry from schedule.cron; point it at prompt.md"
+  - verify: "Run prompt.md once by hand — it reads the Birthdays calendar and either
+             messages home_channel or correctly stays silent"
+
 settings:
+  time: "08:30"                 # local time; keep it off morning-brief's time (see schedule)
   lead_days: 1                  # remind this many days ahead
   respect_quiet_hours: true
 
 schedule:
-  cron: "0 8 * * *"             # daily 08:00 local
+  cron: "30 8 * * *"            # daily 08:30 local; onboarder rewrites from settings.time.
+                                # Deliberately offset from morning-brief (08:00) so the two
+                                # don't arrive as one 08:00 pile-up
 
 runs: prompt.md
 
@@ -25,5 +34,7 @@ hermes:
   kind: cron
 
 notes: >
-  Birthdays come from Google's auto-populated "Birthdays" calendar (from Contacts).
-  Reminds only; drafting requires the gmail connector and an explicit yes.
+  Birthdays come from Google's auto-populated "Birthdays" calendar, which Google fills in
+  from Contacts — so enable the contacts connector if that calendar is empty. Reminds only;
+  on an explicit yes it writes the message as a TEXT in the chat for you to send yourself.
+  Never an email draft, so no gmail connector is needed.

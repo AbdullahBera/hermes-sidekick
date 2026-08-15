@@ -25,7 +25,7 @@ hermes-sidekick is a thin, security-first product layer on top of
 the engine that does the real work (agent loop, tools, MCP, gateway, crons, memory).
 We curate and orchestrate it; we don't fork it. Please support the upstream project.
 
-The design and plugin model live in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+The design and plugin model live in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md); the plan is in [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Architecture
 

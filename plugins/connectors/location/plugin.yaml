@@ -1,0 +1,34 @@
+id: location
+name: Location & Maps
+category: connector
+status: planned          # roadmap item — not yet wired
+summary: Addresses, distances, ETAs, and "leave by" timing — via OpenRouteService (free, no card).
+
+requires:
+  connectors: []
+  human:
+    - openrouteservice_key   # free ORS API key — no billing / no card
+
+security:
+  provider: openrouteservice   # third party: geocode/route queries go to ORS (OpenStreetMap data)
+  writes: []                   # read-only lookups; no account actions
+  ask_first: false             # it only answers you
+  secrets_location: vm         # ORS key in ~/.hermes/.env
+
+setup:
+  - human:  "Get a free OpenRouteService API key (no card) at openrouteservice.org"
+  - auto:   "Add the ORS tool with the key; wire geocode + directions + distance-matrix"
+  - verify: "A geocode and a directions query both return results"
+
+settings:
+  units: metric              # metric | imperial
+  home_address: ""           # base for 'how far' / 'leave by' calculations
+
+hermes:
+  kind: mcp
+
+notes: >
+  OpenStreetMap-based via ORS — free, no card. Great for addresses, distances, ETAs, and
+  "leave by" nudges; powers commute/meeting-prep automations. Privacy note: the address or
+  coordinates you look up are sent to ORS's servers. For rich business data (hours, ratings)
+  Google Places is stronger but requires billing.

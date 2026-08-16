@@ -31,14 +31,19 @@ and fill it in. This doc explains what each section *means*; the example is the 
 
 - **`connectors`** — what the assistant can access. Each has `enabled` mirroring what was
   wired into Hermes, plus its own settings:
-  - `gmail` — `important_senders` (who to prioritize), `summary_style`.
+  - `gmail` — `important_senders` (who to prioritize), `summary_style`, and `triage`: how the
+    email-triage automation sorts your inbox — `file_into` (Gmail label names it may ADD to
+    messages; mail stays in the inbox), `create_missing` (create a mapped label if absent),
+    and `hints` (a one-liner mapping label → what belongs in it). Requires the connector's
+    `gmail.modify` scope; label writes are confined to these labels by a hard rule.
   - `calendar` — `default_calendar`. Create/edit is granted but always ask-first.
   - `contacts` — read-only; also populates Google's "Birthdays" calendar.
   - `location` — planned (free OpenRouteService key); `units`, `home_address` for
     "how far" / "leave by" calculations.
 
 - **`automations`** — what the assistant does proactively. Each has `enabled` and its own
-  settings (e.g. morning-brief `time` + `include`; birthday-reminder `time` + `lead_days`).
+  settings (e.g. morning-brief `time` + `include`; birthday-reminder `time` + `lead_days`;
+  email-triage `run` + `lookback` + `max_items` + `auto_draft`).
   These are the user's *actual* values — they override the defaults declared in each
   plugin's `plugin.yaml`.
 

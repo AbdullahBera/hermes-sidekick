@@ -24,7 +24,9 @@ The theme: it tells you the right thing at the right time, and handles the follo
 - **Meeting & commute prep:** before an event, a heads-up with location, travel time, and
   what you need to bring.
 - **Calendar-conflict alerts:** flag double-bookings and tight back-to-backs as they appear.
-- **Email triage:** surface only what needs you; offer to draft replies.
+- **Email triage:** ✅ built — sorts your inbox into your own Gmail labels, surfaces only what
+  needs you, and auto-drafts replies (never sends). Folds into the morning brief (check-in
+  triggered). *Activation pending the one-time `gmail.modify` re-auth.*
 - **Evening prep:** "tomorrow you've got X — anything to sort tonight?"
 - **Follow-ups & nudges:** "you meant to get back to Sarah — want a draft?"
 - **Profile-driven config:** automations read `profile.yaml` (quiet hours, what to include)

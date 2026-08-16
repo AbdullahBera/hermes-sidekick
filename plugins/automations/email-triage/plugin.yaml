@@ -1,0 +1,42 @@
+id: email-triage
+name: Email triage
+category: automation
+summary: Sorts your inbox into your own labels, surfaces only what needs you, and drafts replies — never sends.
+
+requires:
+  connectors: [gmail]        # needs read + draft + gmail.modify (to add labels to messages)
+  human: []
+
+security:
+  writes: [draft, message-labels]   # adds YOUR triage labels; drafts replies. Never sends, never archives.
+  ask_first: true                   # blanket — except the gmail connector's opt-in exceptions (add-label, draft)
+  secrets_location: vm
+
+setup:
+  - human:  "Confirm the gmail connector has gmail.modify (re-auth if needed); set
+             connectors.gmail.triage.file_into to your label names"
+  - auto:   "Wire it into the morning brief (or install a cron if the VM is always-on); point it at prompt.md"
+  - verify: "Run prompt.md by hand — messages get your labels, a draft appears, a summary arrives;
+             confirm NOTHING was archived, trashed, or sent"
+
+settings:
+  run: with-morning-brief    # with-morning-brief | standalone | on-demand
+  lookback: "24h"            # how far back to consider
+  max_items: 25              # cap on messages examined per run (token budget)
+  auto_draft: true           # auto-draft clearly-needed replies, then show them (never send)
+
+schedule:
+  # No fixed cron by default: triage runs WITH the morning brief / on demand, so a sleeping
+  # laptop never means a missed run. Add a cron here only if the VM is always-on.
+  cron: ""
+
+runs: prompt.md
+
+hermes:
+  kind: cron
+
+notes: >
+  Filing = ADD a label; mail stays in the inbox (adding a label is not archiving). Labels come
+  from connectors.gmail.triage.file_into; needs-reply items get an auto-draft you review and send
+  yourself. Obeys core.quiet_hours and prioritizes connectors.gmail.important_senders. Read-only on
+  everything except adding your own labels and creating drafts — never sends, archives, or trashes.

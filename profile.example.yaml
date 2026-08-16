@@ -25,6 +25,14 @@ connectors:
     enabled: true
     important_senders: []          # e.g. ["boss@work.com", "mom@family.com"]
     summary_style: concise
+    triage:                        # how email-triage sorts your inbox — YOUR labels, your choice
+      file_into:                   # Gmail label NAMES the assistant may add to messages
+        - Bank                     # (use your own existing labels; leave [] to skip filing)
+        - Travel
+        - Newsletters
+        - Receipts
+      create_missing: false        # true = create a mapped label that doesn't exist yet
+      hints: "Bank=finance/statements; Travel=flights/hotels; Newsletters=digests; Receipts=orders/payments"
   calendar:
     enabled: true
     default_calendar: primary      # create/edit is granted but always ask-first
@@ -44,3 +52,9 @@ automations:
     enabled: false
     time: "08:30"                  # keep off morning-brief's time so they don't pile up
     lead_days: 1
+  email-triage:
+    enabled: true
+    run: with-morning-brief        # with-morning-brief | standalone | on-demand
+    lookback: "24h"                # how far back to consider
+    max_items: 25                  # cap messages examined per run (token budget)
+    auto_draft: true               # auto-draft clearly-needed replies, then show them (never send)

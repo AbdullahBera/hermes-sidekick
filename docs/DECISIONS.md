@@ -65,6 +65,28 @@ Google Calendar via the same `google_workspace_mcp` + OAuth client as Gmail (sam
 token, re-authed to add `calendar.readonly`). Registered as a separate `calendar` MCP
 server (`list_calendars`, `get_events`, `query_freebusy`). Now read+write (`calendar:full`): create/edit/delete events, gated by the ask-first hard rule. See `plugins/connectors/calendar/recipe.md`.
 
+### Email triage — gmail.modify for label-sorting, protection by policy (2026-08-15)
+Added the `gmail.modify` scope so the assistant can sort the inbox by **adding the user's own
+labels to messages** (`messages.modify`; `gmail.labels` alone only edits label *definitions*).
+The same scope also permits archive/trash/mark-read, so — unlike the read-first connectors —
+protection here is **policy, not scope**: a hard rule in `SOUL.md` confines unprompted writes to
+(a) ADDING the user's configured triage labels (mail stays in the inbox) and (b) creating DRAFTS
+(shown to the user, never sent). Archive, trash, mark read/spam, unsubscribe → explicit "yes".
+
+Deliberately did **not** grant the full-mailbox scope (`https://mail.google.com/`), so permanent
+delete is impossible — worst case is recoverable Trash. Kept `send` off: no send tool is exposed
+and the permission level stays at `drafts` (below `send`/`full`).
+
+Correctness fix: earlier docs claimed "the granted scope can't send." Inaccurate — `gmail.compose`
+technically can send. The real guarantee is **tool non-exposure + ask-first**, now stated that way
+in the plugin manifest and recipe.
+
+Accepted residual risk: a prompt-injection carried in a hostile email could try to make the agent
+label/archive/trash maliciously. Mitigations: the SOUL.md hard rule (system labels off-limits;
+destructive actions ask-first), VM isolation, no send path, and no permanent delete. Triage is
+read-only otherwise, auto-drafts (never sends), and folds into the morning brief (check-in
+triggered) so a sleeping laptop never misses a run. Revisit if we expose more of modify's surface.
+
 ## Open / next
 - Optional messaging gateway (Telegram/Slack) via `hermes gateway install`.
 - Crons for background automation.

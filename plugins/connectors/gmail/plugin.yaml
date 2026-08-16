@@ -10,22 +10,30 @@ requires:
     - oauth_consent         # approve the consent screen in the browser
 
 security:
-  scopes: [gmail.readonly, gmail.labels, gmail.compose]
-  writes: [draft, label]
-  ask_first: true           # confirm before any draft or label change
-  send: false               # no send tool is exposed; the agent cannot send mail
+  scopes: [gmail.readonly, gmail.compose, gmail.labels, gmail.modify]
+  writes: [draft, message-labels]    # create drafts; add/remove the user's own triage labels on messages
+  ask_first: true                    # confirm before any account change EXCEPT the two opt-in exceptions:
+  unprompted: [add-triage-label, draft]   # allowed without asking — labels stay in inbox; drafts never send
+  send: false               # NO send tool is exposed. Note: the gmail.compose *scope* can technically send —
+                            # the guarantee is tool non-exposure + the ask-first hard rule, NOT the scope.
+  delete: false             # gmail.modify cannot permanently delete (that needs the full-mailbox scope; not granted)
   secrets_location: vm      # ~/.hermes/google-workspace (client JSON + token, chmod 600)
 
 setup:
   - human:  "Enable the Gmail API; create a Desktop OAuth client; publish app to 'production'; download client_secret.json"
   - auto:   "uv tool install workspace-mcp (in the VM)"
-  - human:  "Approve the OAuth consent screen (grants the Gmail scopes)"
+  - human:  "Approve the OAuth consent screen — grants: gmail.readonly, gmail.compose, gmail.labels, gmail.modify.
+             (Existing installs: re-auth to ADD gmail.modify, which enables message-label sorting.)"
   - auto:   "hermes mcp add gmail --command workspace-mcp --args --single-user --permissions gmail:drafts"
-  - verify: "list_gmail_labels returns your labels"
+  - verify: "list_gmail_labels returns your labels; adding a test triage label to a message succeeds"
 
 settings:
   important_senders: []     # who to prioritize in summaries
   summary_style: concise    # one short line per email
+  triage:                   # how the assistant sorts your inbox (see the email-triage automation)
+    file_into: []           # Gmail label names it may add to messages, e.g. [Bank, Travel, Newsletters]
+    create_missing: false   # true = create a mapped label that doesn't exist yet
+    hints: ""               # optional one-liner mapping label -> what belongs in it
 
 hermes:
   kind: mcp
@@ -35,4 +43,12 @@ hermes:
 notes: >
   Self-hosted google_workspace_mcp with the user's OWN OAuth client — no third-party
   broker. Publish the OAuth app to "production" so the refresh token persists (Testing
-  mode expires it weekly). See recipe.md.
+  mode expires it weekly).
+
+  Why gmail.modify: applying a label to a *message* goes through messages.modify, which
+  needs gmail.modify — gmail.labels only manages label definitions. The same scope also
+  permits archive/trash/mark-read, so protection is POLICY, not scope: the ask-first hard
+  rule (config/SOUL.md) confines unprompted writes to ADDING the user's own triage labels
+  (mail stays in the inbox). Archive/trash/etc. require an explicit "yes". It still cannot
+  send (no send tool) or permanently delete (no full-mailbox scope). See recipe.md and
+  docs/DECISIONS.md for the accepted residual risk.

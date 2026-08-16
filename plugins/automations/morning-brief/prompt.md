@@ -12,8 +12,13 @@ always: plain, short, warm, no fluff.
    - `connectors.gmail.important_senders` is who matters most.
 1. If the current local time (`core.timezone`) is inside `core.quiet_hours`, do nothing and stop.
 2. Read **today's** calendar events (`get_events` for today, `core.timezone`).
-3. If `email` is in `automations.morning-brief.include`, read important/unread mail since yesterday
-   (one search: important + unread, ~12 max; prioritize `connectors.gmail.important_senders`). Use only the sender/subject/snippet from results — do NOT open or fetch full message bodies.
+3. **Email.** If `automations.email-triage` is enabled with `run: with-morning-brief`, hand the
+   email section to it — run the email-triage instructions (file into labels, auto-draft what
+   needs a reply, surface what needs you) instead of the light pass below, so email isn't read
+   twice. Otherwise, if `email` is in `automations.morning-brief.include`, read important/unread
+   mail since yesterday (one search: important + unread, ~12 max; prioritize
+   `connectors.gmail.important_senders`). Use only the sender/subject/snippet — do NOT open or
+   fetch full message bodies.
 4. Compose **one** short message:
    - Open with the day at a glance — number of events + the first/most important one.
    - Today's events: one short line each (time + what).

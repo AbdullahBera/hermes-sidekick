@@ -21,7 +21,6 @@ setup:
 settings:
   time: "08:00"                 # local time (see core.timezone)
   include: [calendar, email]    # what to cover
-  respect_quiet_hours: true
 
 schedule:
   cron: "0 8 * * *"             # daily 08:00 local; onboarder rewrites from settings.time

@@ -8,8 +8,9 @@ requires:
   human: []
 
 security:
-  writes: [draft, message-labels]   # adds YOUR triage labels; drafts replies. Never sends, never archives.
-  ask_first: true                   # blanket — except the gmail connector's opt-in exceptions (add-label, draft)
+  writes: [draft, message-labels]        # adds YOUR triage labels; drafts replies. Never sends, never archives.
+  ask_first: true                        # blanket EXCEPT the two opt-in exceptions below
+  unprompted: [add-triage-label, draft]  # allowed without asking — labels stay in inbox; drafts never send
   secrets_location: vm
 
 setup:
@@ -20,20 +21,21 @@ setup:
              confirm NOTHING was archived, trashed, or sent"
 
 settings:
-  run: with-morning-brief    # with-morning-brief | standalone | on-demand
+  run: with-morning-brief    # with-morning-brief | on-demand  (add a standalone cron only if always-on — see schedule)
   lookback: "24h"            # how far back to consider
   max_items: 25              # cap on messages examined per run (token budget)
-  auto_draft: true           # auto-draft clearly-needed replies, then show them (never send)
+  auto_draft: true           # auto-draft clearly-needed replies to known senders, then show them (never send)
 
 schedule:
   # No fixed cron by default: triage runs WITH the morning brief / on demand, so a sleeping
-  # laptop never means a missed run. Add a cron here only if the VM is always-on.
+  # laptop never means a missed run. To run it standalone on its own schedule, set a cron
+  # here (requires an always-on VM) — setup.auto installs it.
   cron: ""
 
 runs: prompt.md
 
 hermes:
-  kind: cron
+  kind: cron        # in the default with-morning-brief mode it's driven by the brief's cron, not its own
 
 notes: >
   Filing = ADD a label; mail stays in the inbox (adding a label is not archiving). Labels come

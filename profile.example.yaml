@@ -54,7 +54,7 @@ automations:
     lead_days: 1
   email-triage:
     enabled: true
-    run: with-morning-brief        # with-morning-brief | standalone | on-demand
+    run: with-morning-brief        # with-morning-brief | on-demand
     lookback: "24h"                # how far back to consider
     max_items: 25                  # cap messages examined per run (token budget)
     auto_draft: true               # auto-draft clearly-needed replies, then show them (never send)

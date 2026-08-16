@@ -21,7 +21,6 @@ setup:
 settings:
   time: "08:30"                 # local time; keep it off morning-brief's time (see schedule)
   lead_days: 1                  # remind this many days ahead
-  respect_quiet_hours: true
 
 schedule:
   cron: "30 8 * * *"            # daily 08:30 local; onboarder rewrites from settings.time.

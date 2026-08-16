@@ -1,7 +1,7 @@
 id: gmail
 name: Gmail
 category: connector
-summary: Read and draft email. Never sends.
+summary: Read, draft, and label-sort email. Never sends.
 
 requires:
   connectors: []
@@ -10,7 +10,8 @@ requires:
     - oauth_consent         # approve the consent screen in the browser
 
 security:
-  scopes: [gmail.readonly, gmail.compose, gmail.labels, gmail.modify]
+  scopes: [gmail.readonly, gmail.compose, gmail.labels, gmail.modify]   # gmail.modify is ADDED via re-auth (label-sorting); until then message-labeling is inert
+  # note: once gmail.modify is active it subsumes gmail.readonly (kept explicit for clarity)
   writes: [draft, message-labels]    # create drafts; add/remove the user's own triage labels on messages
   ask_first: true                    # confirm before any account change EXCEPT the two opt-in exceptions:
   unprompted: [add-triage-label, draft]   # allowed without asking — labels stay in inbox; drafts never send

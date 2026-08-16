@@ -107,6 +107,9 @@ security:
   scopes: []                           # least-privilege by default
   writes: []                           # what it can change (empty = read-only)
   ask_first: true                      # never act without explicit confirmation
+  unprompted: []                       # optional: specific writes allowed WITHOUT asking (e.g. [add-triage-label, draft])
+  send: false                          # optional: declare explicitly; the guarantee is no send tool is exposed
+  delete: false                        # optional: declare explicitly; no permanent-delete scope granted
   secrets_location: vm                 # secrets live only in the user's VM
 setup: []                              # ordered steps: {auto|human|verify}
 settings: {}                           # user-tunable options
@@ -118,21 +121,23 @@ hermes: {}                             # which Hermes primitive it wires (mcp | 
 id: gmail
 name: Gmail
 category: connector
-summary: Read and draft email. Never sends.
+summary: Read, draft, and label-sort email. Never sends.
 requires:
   human: [google_oauth_client, oauth_consent]
 security:
-  scopes: [gmail.readonly, gmail.labels, gmail.compose]
-  writes: [draft, label]
-  ask_first: true            # confirm before any draft/label change
+  scopes: [gmail.readonly, gmail.compose, gmail.labels, gmail.modify]
+  writes: [draft, message-labels]
+  ask_first: true                       # confirm before any account change...
+  unprompted: [add-triage-label, draft] # ...except these two (labels stay in inbox; drafts never send)
   send: false                # no send tool exists, ever
+  delete: false              # no permanent-delete scope granted
   secrets_location: vm       # ~/.hermes/google-workspace (chmod 600)
 setup:
   - human:  "Enable Gmail API + create a Desktop OAuth client (guided), download JSON"
   - auto:   "uv tool install workspace-mcp (in the VM)"
-  - human:  "Approve the OAuth consent screen in your browser"
+  - human:  "Approve the OAuth consent screen (grants gmail.modify for label-sorting)"
   - auto:   "hermes mcp add gmail --permissions gmail:drafts"
-  - verify: "list_gmail_labels returns your labels"
+  - verify: "list_gmail_labels returns your labels; adding a triage label to a message succeeds"
 settings:
   important_senders: []
   summary_style: concise

@@ -7,8 +7,8 @@ onboarder, composed from opt-in plugins. This roadmap is oriented around one goa
 ## Shipped
 - **Channel:** Signal. **Model:** Claude Sonnet 5. **Voice:** concise, human, text-native,
   matches your tone (and writes Turkish for Turkish names).
-- **Connectors:** Gmail (read + draft, never send), Calendar (read + write, ask-first),
-  Contacts (read).
+- **Connectors:** Gmail (read + draft + label-sort, never send), Calendar (read + write,
+  ask-first), Contacts (read).
 - **Web search** (keyless).
 - **Automations:** morning brief; birthday reminders (draft-only, you send).
 - **Memory:** a living, two-tier "about you" — a small always-on digest (`USER.md`) plus
@@ -24,9 +24,9 @@ The theme: it tells you the right thing at the right time, and handles the follo
 - **Meeting & commute prep:** before an event, a heads-up with location, travel time, and
   what you need to bring.
 - **Calendar-conflict alerts:** flag double-bookings and tight back-to-backs as they appear.
-- **Email triage:** ✅ built — sorts your inbox into your own Gmail labels, surfaces only what
-  needs you, and auto-drafts replies (never sends). Folds into the morning brief (check-in
-  triggered). *Activation pending the one-time `gmail.modify` re-auth.*
+- **Email triage:** 🔨 built, activating — sorts your inbox into your own Gmail labels, surfaces
+  only what needs you, and auto-drafts replies (never sends). Folds into the morning brief
+  (check-in triggered). *Not yet live: pending the one-time `gmail.modify` re-auth + VM deploy.*
 - **Evening prep:** "tomorrow you've got X — anything to sort tonight?"
 - **Follow-ups & nudges:** "you meant to get back to Sarah — want a draft?"
 - **Profile-driven config:** automations read `profile.yaml` (quiet hours, what to include)

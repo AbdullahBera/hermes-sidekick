@@ -87,6 +87,19 @@ destructive actions ask-first), VM isolation, no send path, and no permanent del
 read-only otherwise, auto-drafts (never sends), and folds into the morning brief (check-in
 triggered) so a sleeping laptop never misses a run. Revisit if we expose more of modify's surface.
 
+### Calendar date-safety + SOUL.md deployment drift (2026-08-16)
+A relative-date request ("today/tomorrow") led the agent to delete the **wrong** calendar event.
+Two causes: (1) Hermes injects only a **date-only, potentially-stale** "Conversation started" line
+(kept byte-stable for prefix-cache — it expects the model to query exact time via tools), and
+(2) the live VM `~/.hermes/SOUL.md` had **drifted to an old ruleset** — none of the security-audit
+hardening was actually deployed. Fixes: added a "dates & calendar safety" hard rule — resolve the
+current date+time in `core.timezone` via a tool (`date`) before any date math, and **echo the exact
+event (title + weekday/date + start time) for an explicit "yes" before any create/edit/delete** —
+and deployed the reviewed `config/SOUL.md` to the VM so all hardened rules are finally live.
+Timezone itself was already correct (`hermes_time` falls back to server localtime =
+America/Los_Angeles). Lesson: the repo `config/SOUL.md` is a **template** — edits are inert until
+deployed to `~/.hermes/SOUL.md` and the gateway is restarted.
+
 ## Open / next
 - Optional messaging gateway (Telegram/Slack) via `hermes gateway install`.
 - Crons for background automation.

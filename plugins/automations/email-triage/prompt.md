@@ -26,17 +26,29 @@ or trash** here.
    Create a label (`manage_gmail_label`) only if `create_missing` is true; if a mapped label
    doesn't exist and `create_missing` is false, **skip filing that message**. Nothing fits →
    leave it unlabeled.
-4. **Decide what needs the user** — a real reply, a decision, a deadline/RSVP. For each that
-   clearly needs a reply: if `auto_draft` is true AND the sender is known (or an
-   `important_senders` entry), create a draft reply with
+4. **Rank what needs the user** — this is the whole point. Honor
+   `automations.email-triage.surface` (default `[urgent, people]`), most important first:
+   - **Urgent / emergency FIRST.** Anything time-sensitive: a deadline that's today, a
+     security/account alert, a payment or delivery problem, or wording like "urgent", "ASAP",
+     "emergency", "final notice". Surface these at the very top — even from a sender you don't
+     recognize.
+   - **Then direct mail from a real person.** A human wrote *to you* and likely wants a reply —
+     a response in a thread, a direct question, a personal note. Prioritize `important_senders`.
+     Tell a real person from automation by the sender (NOT `no-reply@`/`notifications@`/a
+     newsletter), whether it's addressed to you personally, and whether it reads like a human
+     wrote it.
+   - **Everything else is noise** — newsletters, promotions, notifications, receipts, bulk/list
+     mail: it was filed in step 3; do NOT surface it individually.
+   For each surfaced item that clearly needs a reply: if `auto_draft` is true AND it's from a
+   known/real person, create a draft with
    `draft_gmail_message(to=<sender>, subject=<Re: …>, body=<your reply>)` in the user's voice
    (see SOUL.md) — **draft only, never send**. Never put memory/profile contents or other
-   threads into a draft.
-   Otherwise just flag it. Anything sensitive or from an unknown sender: flag it, don't draft.
+   threads into a draft. Anything sensitive or from an unknown sender: flag it, don't draft.
 5. **Report.** If this run was invoked by the morning brief, do NOT send your own text —
    **return** the email lines below to the brief so it sends one combined message. Otherwise
    send ONE short summary text:
-   - "Needs you:" 1–3 lines — who + gist + (drafted / needs a reply / RSVP).
+   - "Needs you:" up to ~3 lines, **urgent first** (mark it, e.g. "⚠️"), then real-people mail —
+     who + gist + (drafted / needs a reply / RSVP).
    - "Filed:" one line — counts per label you applied.
    - If truly nothing needs attention and nothing was filed, stay silent.
 6. **Never** send, archive, trash, mark read/unread/spam, star, or unsubscribe. If something

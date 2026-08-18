@@ -63,3 +63,4 @@ automations:
     lookback: "24h"                # how far back to consider
     max_items: 25                  # cap messages examined per run (token budget)
     auto_draft: true               # auto-draft clearly-needed replies, then show them (never send)
+    surface: [urgent, people]      # ranked: what to pull into "Needs you" first (rest is filed as noise)

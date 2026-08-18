@@ -47,7 +47,12 @@ automations:
   morning-brief:
     enabled: true
     time: "08:00"
-    include: [calendar, email]
+    include: [weather, calendar, email]
+    weather:                       # open-meteo (keyless); your coordinates
+      latitude: 37.77
+      longitude: -122.42
+      units: imperial              # imperial (°F) | metric (°C)
+      label: "San Francisco"       # human name, for the brief text
   birthday-reminder:
     enabled: false
     time: "08:30"                  # keep off morning-brief's time so they don't pile up

@@ -42,8 +42,10 @@ and fill it in. This doc explains what each section *means*; the example is the 
     "how far" / "leave by" calculations.
 
 - **`automations`** — what the assistant does proactively. Each has `enabled` and its own
-  settings (e.g. morning-brief `time` + `include`; birthday-reminder `time` + `lead_days`;
-  email-triage `run` + `lookback` + `max_items` + `auto_draft`).
+  settings (e.g. morning-brief `time` + `include` + a `weather` block with
+  `latitude`/`longitude`/`units` (keyless open-meteo); birthday-reminder `time` + `lead_days`;
+  email-triage `run` + `lookback` + `max_items` + `auto_draft`). Put `weather` in
+  morning-brief's `include` to get a forecast line.
   These are the user's *actual* values — they override the defaults declared in each
   plugin's `plugin.yaml`.
 

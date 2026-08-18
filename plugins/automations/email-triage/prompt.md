@@ -12,21 +12,26 @@ or trash** here.
    scheduled runs and the morning-brief hand-off have no such message. Only on demand may you
    run inside `core.quiet_hours`; otherwise, if the local time (`core.timezone`) is inside
    `core.quiet_hours`, do nothing and stop.
-2. Search recent mail: one search (`gmail: search_gmail_messages`, e.g.
-   `is:unread newer_than:1d`, `~max_items` results) within `automations.email-triage.lookback`.
-   Prioritize `important_senders`. Judge from sender/subject/snippet; open full content only
-   when you must to decide. **Never download attachments.**
-3. **File each message.** Pick the best-fit label from `connectors.gmail.triage.file_into`
-   (use `hints` to map) and **add** it with `gmail: modify_gmail_message_labels` (add-only) —
-   the mail stays in the inbox; never remove `INBOX`, never touch other system labels. Create
-   a label (`manage_gmail_label`) only if `create_missing` is true; if the mapped label
-   doesn't exist and `create_missing` is false, **skip filing that message** — never create
-   it. If nothing fits, leave it unlabeled.
+2. Search recent mail with one `search_gmail_messages` call passing **only** `query`
+   (e.g. `is:unread newer_than:1d`, widened per `automations.email-triage.lookback`) — do NOT
+   pass any count argument (`max_results`/`page_size`); the tool caps results itself. Treat
+   ~`max_items` as your own judgment cap on how many to act on; prioritize `important_senders`.
+   Judge from sender/subject/snippet; open full content only when you must. **Never download
+   attachments.**
+3. **File each message.** First call `list_gmail_labels` ONCE and map each
+   `connectors.gmail.triage.file_into` NAME to its label **ID** — the label tool takes IDs,
+   not names. Pick the best-fit label (use `hints`) and file with
+   `modify_gmail_message_labels(message_id=<id>, add_label_ids=[<that label's ID>])` — add-only,
+   so the mail stays in the inbox; never pass `remove_label_ids`, never touch system labels.
+   Create a label (`manage_gmail_label`) only if `create_missing` is true; if a mapped label
+   doesn't exist and `create_missing` is false, **skip filing that message**. Nothing fits →
+   leave it unlabeled.
 4. **Decide what needs the user** — a real reply, a decision, a deadline/RSVP. For each that
    clearly needs a reply: if `auto_draft` is true AND the sender is known (or an
-   `important_senders` entry), create a draft reply with `gmail: draft_gmail_message` in the
-   user's voice (see SOUL.md) — **draft only, never send**. Never put memory/profile contents
-   or other threads into a draft.
+   `important_senders` entry), create a draft reply with
+   `draft_gmail_message(to=<sender>, subject=<Re: …>, body=<your reply>)` in the user's voice
+   (see SOUL.md) — **draft only, never send**. Never put memory/profile contents or other
+   threads into a draft.
    Otherwise just flag it. Anything sensitive or from an unknown sender: flag it, don't draft.
 5. **Report.** If this run was invoked by the morning brief, do NOT send your own text —
    **return** the email lines below to the brief so it sends one combined message. Otherwise

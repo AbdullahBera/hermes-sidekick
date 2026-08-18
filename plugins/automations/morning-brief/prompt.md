@@ -11,16 +11,17 @@ always: plain, short, warm, no fluff.
      if a key is missing, fall back to this plugin's defaults.
    - `connectors.gmail.important_senders` is who matters most.
 1. If the current local time (`core.timezone`) is inside `core.quiet_hours`, do nothing and stop.
-2. Read **today's** calendar events (`get_events` for today, `core.timezone`).
+2. Read **today's** calendar events: `get_events` with `time_min`/`time_max` bracketing today
+   in `core.timezone` (leave `calendar_id` at its default — don't override it).
 3. **Email.** Only if `email` is in `automations.morning-brief.include` (otherwise skip email
    entirely):
    - If `automations.email-triage` is enabled with `run: with-morning-brief`, **read and follow
      `~/.hermes/sidekick/email-triage.prompt.txt`** (deployed alongside this) — it files into
      labels, auto-drafts, and decides what needs you — but have it **return** its email lines
      to you rather than send its own message. Fold those lines into the single brief in step 4.
-   - Otherwise, do a light read: one search (`gmail: search_gmail_messages`,
-     `is:unread is:important newer_than:1d`, ~12 max; prioritize
-     `connectors.gmail.important_senders`). Use only the sender/subject/snippet — do NOT open
+   - Otherwise, do a light read: one `search_gmail_messages` call passing **only** `query`
+     (`is:unread is:important newer_than:1d`) — no count argument. Prioritize
+     `connectors.gmail.important_senders`. Use only the sender/subject/snippet — do NOT open
      or fetch full message bodies.
 4. Compose **one** short message:
    - Open with the day at a glance — number of events + the first/most important one.

@@ -8,15 +8,16 @@
 #
 # Safe by default:
 #   ./scripts/sync.sh            # --check: report drift, change NOTHING
-#   ./scripts/sync.sh --apply    # deploy the safe pieces (SOUL.md; create profile if missing)
+#   ./scripts/sync.sh --apply    # deploy into the VM (backs up what it overwrites)
 #
-# What it does on --apply:
-#   • SOUL.md  -> ~/.hermes/SOUL.md   (backup first; reload gateway after)
-#   • profile.yaml: create from the example ONLY if missing; NEVER overwrites (it's your
-#     VM-only config and may hold personal settings).
-#   • Cron prompts: REPORTED, not deployed. They live inline in ~/.hermes/cron/jobs.json and
-#     carry hand-tuning (channel voice, timezone). Rendering them from templates is a later
-#     step (needs the prompt-reconciliation decision) — this tool won't clobber them.
+# What --apply does:
+#   • SOUL.md      -> ~/.hermes/SOUL.md              (backup; reload gateway after)
+#   • profile.yaml : create from example ONLY if missing; NEVER overwrites your VM config
+#   • prompts      -> each automation's prompt.md is deployed to ~/.hermes/sidekick/<id>.prompt.txt
+#                     and, if the automation has a live cron, into that cron's prompt
+#                     (hermes cron edit). jobs.json is backed up first.
+# Crons run once/day, so prompts keep the runtime "load profile.yaml" model — no template
+# engine needed. Delivery channel + timezone come from the cron's deliver field + profile.
 set -euo pipefail
 
 VM="${HERMES_VM:-hermes}"
@@ -25,77 +26,108 @@ MODE="check"
 case "${1:-}" in
   --apply) MODE="apply" ;;
   ""|--check) MODE="check" ;;
-  -h|--help) sed -n '2,20p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
+  -h|--help) sed -n '2,22p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
   *) echo "unknown arg: $1 (use --check or --apply)" >&2; exit 2 ;;
 esac
 
-vm() { orb run -m "$VM" bash -lc "$1"; }
-hr() { printf '%s\n' "----------------------------------------------------------------"; }
-changed=0
+vm()   { orb run -m "$VM" bash -lc "$1"; }
+hr()   { printf '%s\n' "----------------------------------------------------------------"; }
+# id of a cron job by name (empty if none). Reads jobs.json; robust to list/dict shapes.
+cron_id() {
+  printf '%s' '
+import json,os,sys
+p=os.path.expanduser("~/.hermes/cron/jobs.json")
+d=json.load(open(p)) if os.path.exists(p) else {}
+jobs=d if isinstance(d,list) else d.get("jobs",d)
+for j in (jobs.values() if isinstance(jobs,dict) else jobs):
+    if isinstance(j,dict) and j.get("name")==sys.argv[1]:
+        print(j.get("id","")); break
+' | orb run -m "$VM" bash -lc "python3 - '$1'"
+}
+# current inline prompt of a cron job by id
+cron_prompt() {
+  printf '%s' '
+import json,os,sys
+d=json.load(open(os.path.expanduser("~/.hermes/cron/jobs.json")))
+jobs=d if isinstance(d,list) else d.get("jobs",d)
+for j in (jobs.values() if isinstance(jobs,dict) else jobs):
+    if isinstance(j,dict) and j.get("id")==sys.argv[1]:
+        sys.stdout.write(j.get("prompt","")); break
+' | orb run -m "$VM" bash -lc "python3 - '$1'"
+}
 
+changed=0; jobs_backed_up=0
 echo "sync ($MODE) — repo: $ROOT  vm: $VM"
 hr
 
-# 1) SOUL.md — the persona + all hard rules. Clean, high-value deploy.
+# 1) SOUL.md — persona + all hard rules.
 LOCAL_SOUL="$ROOT/config/SOUL.md"
 if vm 'cat ~/.hermes/SOUL.md' 2>/dev/null | diff -q - "$LOCAL_SOUL" >/dev/null 2>&1; then
   echo "SOUL.md            : in sync ✓"
 else
-  echo "SOUL.md            : DRIFT — repo differs from VM"
-  changed=1
+  echo "SOUL.md            : DRIFT"; changed=1
   if [ "$MODE" = apply ]; then
     vm 'cp ~/.hermes/SOUL.md ~/.hermes/SOUL.md.pre-sync.bak'
     cat "$LOCAL_SOUL" | vm 'cat > ~/.hermes/SOUL.md'
-    echo "                     -> deployed (backup: ~/.hermes/SOUL.md.pre-sync.bak)"
-    SOUL_APPLIED=1
-  else
-    echo "                     (run --apply to deploy; diff below)"
-    vm 'cat ~/.hermes/SOUL.md' 2>/dev/null | diff - "$LOCAL_SOUL" | sed 's/^/                     /' || true
+    echo "                     -> deployed (backup: SOUL.md.pre-sync.bak)"; SOUL_APPLIED=1
   fi
 fi
 
 # 2) profile.yaml — VM-only user config. Validate; create if missing; NEVER overwrite.
 if vm 'test -f ~/.hermes/sidekick/profile.yaml'; then
-  if cat "$ROOT/profile.example.yaml" >/dev/null && \
-     vm 'python3 -c "import yaml,sys; yaml.safe_load(open(\"$HOME/.hermes/sidekick/profile.yaml\"))"' >/dev/null 2>&1; then
+  if vm 'python3 -c "import yaml; yaml.safe_load(open(\"$HOME/.hermes/sidekick/profile.yaml\"))"' >/dev/null 2>&1; then
     echo "profile.yaml       : present + valid ✓ (left untouched)"
   else
     echo "profile.yaml       : present but INVALID YAML — fix it"; changed=1
   fi
 else
-  echo "profile.yaml       : MISSING"
-  changed=1
+  echo "profile.yaml       : MISSING"; changed=1
   if [ "$MODE" = apply ]; then
     cat "$ROOT/profile.example.yaml" | vm 'mkdir -p ~/.hermes/sidekick && cat > ~/.hermes/sidekick/profile.yaml && chmod 600 ~/.hermes/sidekick/profile.yaml'
-    echo "                     -> created from profile.example.yaml — EDIT IT before relying on it"
+    echo "                     -> created from example — EDIT IT before relying on it"
   fi
 fi
 
-# 3) Cron coverage — which enabled automations have a live cron. Report only.
+# 3) Automation prompts — deploy to sidekick/<id>.prompt.txt and into the matching cron.
 hr
-echo "Automations (repo plugin  ->  live cron):"
-LIVE_CRONS="$(vm 'hermes cron list 2>/dev/null' | grep -iE "Name:" | sed -E "s/.*Name:[[:space:]]*//" | tr -d "\r" || true)"
+echo "Automation prompts (repo prompt.md -> VM):"
 for d in "$ROOT"/plugins/automations/*/; do
-  id="$(basename "$d")"
-  if printf '%s\n' "$LIVE_CRONS" | grep -qx "$id"; then
-    echo "  $id  ->  live ✓"
+  id="$(basename "$d")"; pm="$d/prompt.md"
+  [ -f "$pm" ] || continue
+
+  # always mirror the template to sidekick/<id>.prompt.txt (referenced by other prompts)
+  if [ "$MODE" = apply ]; then
+    cat "$pm" | vm "mkdir -p ~/.hermes/sidekick && cat > ~/.hermes/sidekick/$id.prompt.txt"
+  fi
+
+  cid="$(cron_id "$id" | tr -d '[:space:]')"
+  if [ -z "$cid" ]; then
+    echo "  $id : no cron (file mirrored to sidekick/$id.prompt.txt)"
+    continue
+  fi
+  if [ "$(cron_prompt "$cid")" = "$(cat "$pm")" ]; then
+    echo "  $id : cron in sync ✓"
   else
-    echo "  $id  ->  NO cron (folds into another automation, or not wired)"
+    echo "  $id : cron DRIFT"; changed=1
+    if [ "$MODE" = apply ]; then
+      if [ "$jobs_backed_up" = 0 ]; then
+        vm 'cp ~/.hermes/cron/jobs.json ~/.hermes/cron/jobs.json.pre-sync.bak'; jobs_backed_up=1
+      fi
+      cat "$pm" | vm "hermes cron edit '$cid' --prompt \"\$(cat)\"" >/dev/null
+      echo "         -> deployed prompt into cron $cid"
+    fi
   fi
 done
-echo "Note: cron prompts are hand-tuned inline in jobs.json — this tool reports coverage but"
-echo "does not overwrite prompt text. Reconcile tuning into the repo templates, then render."
 
-# 4) reload the gateway if we changed SOUL.md
+# 4) reload gateway if SOUL changed
 if [ "${SOUL_APPLIED:-0}" = 1 ]; then
-  hr
-  echo "Reloading gateway so the new SOUL.md loads at next session…"
-  vm 'sudo systemctl restart hermes-gateway' >/dev/null 2>&1 && echo "gateway: active ✓" || echo "gateway: restart it manually (sudo systemctl restart hermes-gateway)"
+  hr; echo "Reloading gateway…"
+  vm 'sudo systemctl restart hermes-gateway' >/dev/null 2>&1 && echo "gateway: active ✓" || echo "gateway: restart manually"
 fi
 
 hr
 if [ "$MODE" = check ] && [ "$changed" = 1 ]; then
-  echo "Drift found. Re-run with --apply to deploy the safe pieces."
+  echo "Drift found. Re-run with --apply to deploy."
 elif [ "$MODE" = check ]; then
   echo "Everything in sync."
 else

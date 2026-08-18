@@ -14,13 +14,14 @@ always: plain, short, warm, no fluff.
 2. Read **today's** calendar events (`get_events` for today, `core.timezone`).
 3. **Email.** Only if `email` is in `automations.morning-brief.include` (otherwise skip email
    entirely):
-   - If `automations.email-triage` is enabled with `run: with-morning-brief`, run its
-     instructions (file into labels, auto-draft, decide what needs the user) but have it
-     **return** the email lines to you — do NOT let it send its own message. You fold those
-     lines into the single brief in step 4, so email isn't read or sent twice.
-   - Otherwise, read important/unread mail since yesterday (one search: important + unread,
-     ~12 max; prioritize `connectors.gmail.important_senders`). Use only the sender/subject/
-     snippet — do NOT open or fetch full message bodies.
+   - If `automations.email-triage` is enabled with `run: with-morning-brief`, **read and follow
+     `~/.hermes/sidekick/email-triage.prompt.txt`** (deployed alongside this) — it files into
+     labels, auto-drafts, and decides what needs you — but have it **return** its email lines
+     to you rather than send its own message. Fold those lines into the single brief in step 4.
+   - Otherwise, do a light read: one search (`gmail: search_gmail_messages`,
+     `is:unread is:important newer_than:1d`, ~12 max; prioritize
+     `connectors.gmail.important_senders`). Use only the sender/subject/snippet — do NOT open
+     or fetch full message bodies.
 4. Compose **one** short message:
    - Open with the day at a glance — number of events + the first/most important one.
    - Today's events: one short line each (time + what).

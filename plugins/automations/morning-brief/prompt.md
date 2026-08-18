@@ -15,9 +15,11 @@ always: plain, short, warm, no fluff.
    in the terminal (open-meteo — keyless) using `automations.morning-brief.weather`
    (`latitude`, `longitude`, `units`):
    `curl -s "https://api.open-meteo.com/v1/forecast?latitude=<lat>&longitude=<lon>&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code&temperature_unit=<fahrenheit|celsius>&timezone=<core.timezone>&forecast_days=1"`
-   (units: `imperial`→`fahrenheit`, `metric`→`celsius`). Turn the WMO `weather_code` into a
-   word (0 clear · 1–3 partly cloudy · 45/48 fog · 51–57 drizzle · 61–67 rain · 71–77 snow ·
-   80–82 showers · 95–99 thunderstorm) and note today's conditions + high/low.
+   Pass `temperature_unit=celsius` when `weather.units` is `metric`, `fahrenheit` when
+   `imperial`. **Report the temperature in exactly that unit (metric = °C, imperial = °F) —
+   never convert, and never infer the unit from the city/country; honor the config.** Turn the
+   WMO `weather_code` into a word (0 clear · 1–3 partly cloudy · 45/48 fog · 51–57 drizzle ·
+   61–67 rain · 71–77 snow · 80–82 showers · 95–99 thunderstorm) and note conditions + high/low.
 3. Read **today's** calendar events: `get_events` with `time_min`/`time_max` bracketing today
    in `core.timezone` (leave `calendar_id` at its default — don't override it).
 4. **Email.** Only if `email` is in `automations.morning-brief.include` (otherwise skip email

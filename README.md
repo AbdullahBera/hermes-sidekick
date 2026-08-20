@@ -68,6 +68,8 @@ macOS host (~/Desktop/projects/hermes-sidekick)   OrbStack VM "hermes" (Ubuntu 2
 ./scripts/backup-config.sh     # snapshot config.yaml + REDACTED .env into docs/backups/
 ./scripts/sync.sh              # check for repo→VM config drift (SOUL.md, profile, crons)
 ./scripts/sync.sh --apply      # deploy the safe pieces into the VM (repo is source of truth)
+./scripts/migrate-state.sh     # list the ~20MB of state to move to an always-on host (dry-run)
+./scripts/migrate-state.sh --to user@host   # stream state to the new host (see docs/DEPLOY.md)
 ```
 
 ## Security

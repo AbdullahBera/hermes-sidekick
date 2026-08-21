@@ -16,7 +16,8 @@ as a Claude/Hermes agent with shell access to the user's **isolated VM** — the
 that set up the reference deployment, now codified so it repeats for anyone.
 
 ## Running it (today)
-The onboarder is a playbook an agent executes. In its current form it's driven by a capable
-coding agent (e.g. Claude Code) pointed at this repo: it loads `playbook.md`, then walks the
-user through setup. A one-command bootstrap that installs the runtime and launches the
-onboarder automatically is the next milestone.
+**One command:** [`bootstrap.sh`](bootstrap.sh) provisions the runtime (OrbStack + VM + Hermes),
+stages this repo and your model key into the VM, and hands you to the onboarder. The onboarder
+itself is a playbook an agent executes — either the Hermes agent in the VM, or a coding agent
+(e.g. Claude Code) pointed at this repo: it loads `playbook.md`, reads the catalog, and walks
+the user through setup, pausing only for human checkpoints.

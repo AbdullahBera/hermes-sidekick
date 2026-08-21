@@ -20,20 +20,24 @@ if ! command -v orb >/dev/null; then
 fi
 [ "$(orb status 2>/dev/null)" = "Running" ] || { echo "starting OrbStack…"; open -ga OrbStack || true; }
 
-say "2/5  VM '$VM' (arm64 Ubuntu)"
+say "2/6  VM '$VM' (arm64 Ubuntu)"
 if ! orb list 2>/dev/null | grep -qE "^${VM}\b"; then
   orb create ubuntu "$VM"
 else
   echo "VM already exists."
 fi
 
-say "3/5  Hermes runtime (bundles Python 3.11, node, ripgrep, ffmpeg)"
-orb run -m "$VM" bash -lc 'command -v hermes >/dev/null || curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash'
+say "3/6  Base deps (a fresh VM has none of these; without xz-utils the Hermes installer's node
+     extraction dies silently and leaves you with no working 'hermes')"
+orb run -m "$VM" bash -lc 'sudo apt-get update -y >/dev/null && sudo apt-get install -y git xz-utils ca-certificates curl >/dev/null && echo "deps: git + xz-utils ok"'
 
-say "4/5  Repo (catalog + recipes + playbook) into the VM"
+say "4/6  Hermes runtime (bundles Python 3.11, node, ripgrep, ffmpeg)"
+orb run -m "$VM" bash -lc 'export PATH="$HOME/.local/bin:$HOME/.hermes/bin:$PATH"; command -v hermes >/dev/null || curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash'
+
+say "5/6  Repo (catalog + recipes + playbook) into the VM"
 orb run -m "$VM" bash -lc "test -d ~/hermes-sidekick/.git || git clone --depth 1 '$REPO' ~/hermes-sidekick; cd ~/hermes-sidekick && git pull --ff-only 2>/dev/null || true; echo repo: \$(pwd)"
 
-say "5/5  Model API key (stored only in the VM's ~/.hermes/.env, chmod 600)"
+say "6/6  Model API key (stored only in the VM's ~/.hermes/.env, chmod 600)"
 if orb run -m "$VM" bash -lc 'grep -q "^ANTHROPIC_API_KEY=" ~/.hermes/.env 2>/dev/null'; then
   echo "Anthropic key already set."
 else

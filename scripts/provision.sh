@@ -19,12 +19,14 @@ USER_NAME="$(id -un)"; HOME_DIR="$HOME"
 SIGNALCLI_VERSION="${SIGNALCLI_VERSION:-0.14.7}"
 say() { printf '\n== %s ==\n' "$*"; }
 
-say "1/6  Base deps (Java for signal-cli, plus curl/git/unzip)"
+say "1/6  Base deps (Java 25 for signal-cli; xz-utils so the Hermes installer can extract node)"
 if command -v apt-get >/dev/null; then
   sudo apt-get update -y
-  sudo apt-get install -y openjdk-21-jre-headless curl git unzip ca-certificates
+  # signal-cli 0.14.7 needs Java 25 (class file 69) — JRE 21 fails. xz-utils is required or the
+  # Hermes installer's node .tar.xz extraction dies silently (exit 0, broken install).
+  sudo apt-get install -y openjdk-25-jre-headless xz-utils curl git unzip ca-certificates
 else
-  echo "Non-apt host — install a JRE 17+, curl, git, unzip yourself, then re-run." >&2; exit 1
+  echo "Non-apt host — install a JRE 25+, xz-utils, curl, git, unzip yourself, then re-run." >&2; exit 1
 fi
 
 say "2/6  Hermes Agent (bundles Python 3.11, node, ripgrep, ffmpeg)"
@@ -67,29 +69,12 @@ RestartSec=5
 WantedBy=multi-user.target
 UNIT
 
-sudo tee /etc/systemd/system/hermes-gateway.service >/dev/null <<UNIT
-[Unit]
-Description=Hermes Agent Gateway - Messaging Platform Integration
-After=network-online.target
-Wants=network-online.target
-StartLimitIntervalSec=0
-[Service]
-Type=simple
-User=${USER_NAME}
-WorkingDirectory=${HOME_DIR}/.hermes
-Environment="HOME=${HOME_DIR}"
-Environment="HERMES_HOME=${HOME_DIR}/.hermes"
-Environment="PATH=${HOME_DIR}/.hermes/node:${HOME_DIR}/.local/bin:${HOME_DIR}/.hermes/hermes-agent/venv/bin:/usr/local/bin:/usr/bin:/bin"
-Environment="VIRTUAL_ENV=${HOME_DIR}/.hermes/hermes-agent/venv"
-ExecStart=${HOME_DIR}/.hermes/hermes-agent/venv/bin/python -m hermes_cli.main gateway run
-Restart=always
-RestartSec=5
-[Install]
-WantedBy=multi-user.target
-UNIT
+# Gateway: use Hermes's OWN installer (canonical — won't drift when Hermes updates its unit).
+export PATH="$HOME/.local/bin:$PATH"
+hermes gateway install --system --run-as-user "${USER_NAME}" --no-start-now --start-on-login
 
 sudo systemctl daemon-reload
-sudo systemctl enable signal-cli.service hermes-gateway.service
+sudo systemctl enable signal-cli.service
 
 say "6/6  Done — host provisioned"
 cat <<DONE

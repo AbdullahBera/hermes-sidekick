@@ -100,6 +100,23 @@ Timezone itself was already correct (`hermes_time` falls back to server localtim
 America/Los_Angeles). Lesson: the repo `config/SOUL.md` is a **template** — edits are inert until
 deployed to `~/.hermes/SOUL.md` and the gateway is restarted.
 
+### Fresh-install shakedown — prerequisites the installers silently assume (2026-08-18)
+Ran the onboarder path against a clean OrbStack Ubuntu 26.04 arm64 VM (isolated from the live
+one). A fresh VM lacks things the scripts + upstream Hermes installer assume are present:
+- **`xz-utils` (most dangerous):** without it the Hermes installer's Node `.tar.xz` extraction
+  fails — but the installer still **exits 0**, leaving a broken install with no `hermes`. Silent
+  and fatal. Our live VM happened to have `xz`, so we never saw it.
+- **`git`:** the bootstrap repo-clone needs it; not preinstalled.
+- **Java 25:** signal-cli 0.14.7 is compiled for class-file 69 (Java 25); a JRE 21 throws
+  `UnsupportedClassVersionError`. `provision.sh` now installs `openjdk-25-jre-headless`.
+- `hermes` lands on the login PATH via `~/.local/bin` (Ubuntu's `.profile`) — no extra PATH
+  work needed once the install actually succeeds.
+- Gateway service: use `hermes gateway install --system --no-start-now` (canonical) instead of
+  hand-writing the unit, so it won't drift on Hermes updates. The signal-cli unit stays ours.
+Fixes landed in `onboarder/bootstrap.sh` + `scripts/provision.sh`. Verified on the throwaway VM:
+Hermes v0.20.4 installs + runs, `workspace-mcp` installs, signal-cli 0.14.7 runs under Java 25.
+Lesson: `curl | bash` installers that exit 0 on partial failure are why the shakedown matters.
+
 ## Open / next
 - Optional messaging gateway (Telegram/Slack) via `hermes gateway install`.
 - Crons for background automation.

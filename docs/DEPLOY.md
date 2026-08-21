@@ -7,8 +7,9 @@ tiny (~20 MB)** — config, persona, memories, crons, OAuth creds, and the Signa
 The ~2 GB of `hermes-agent/` code is reinstalled, not copied.
 
 Two moving parts:
-- **provision** — install Hermes + deps on the new host (per [DECISIONS.md](DECISIONS.md); a
-  `provision.sh` is planned to script it).
+- **[`../scripts/provision.sh`](../scripts/provision.sh)** — run ON the new host to install
+  Hermes Agent + workspace-mcp + signal-cli + the systemd units (`SIGNAL_NUMBER=+1… ./provision.sh`).
+  Services are installed but not started.
 - **[`../scripts/migrate-state.sh`](../scripts/migrate-state.sh)** — copy the small state over
   (dry-run by default; `--to user@host` streams it, secrets never landing on the Mac disk).
 
@@ -39,7 +40,8 @@ ssh -L 8000:localhost:8000 user@host   # then run the workspace-mcp HTTP auth fl
 and approve in the browser on your laptop (the loopback callback rides the tunnel).
 
 ## Runbook
-1. **Provision** the target host with Hermes installed and services present (not yet started).
+1. **Provision** the target host: `SIGNAL_NUMBER=+1XXXXXXXXXX ./scripts/provision.sh` (run on the
+   host). Installs Hermes + connectors + signal-cli + systemd units; leaves services stopped.
 2. **Dry-run** to see exactly what will move: `./scripts/migrate-state.sh`
 3. **Stop** signal-cli + gateway on the source (Signal cutover, above).
 4. **Migrate**: `./scripts/migrate-state.sh --to user@host`

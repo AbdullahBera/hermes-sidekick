@@ -70,6 +70,7 @@ macOS host (~/Desktop/projects/hermes-sidekick)   OrbStack VM "hermes" (Ubuntu 2
 ./scripts/sync.sh --apply      # deploy the safe pieces into the VM (repo is source of truth)
 ./scripts/migrate-state.sh     # list the ~20MB of state to move to an always-on host (dry-run)
 ./scripts/migrate-state.sh --to user@host   # stream state to the new host (see docs/DEPLOY.md)
+# On a fresh always-on host: SIGNAL_NUMBER=+1XXXXXXXXXX ./scripts/provision.sh  (installs Hermes)
 ```
 
 ## Security

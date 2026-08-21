@@ -181,6 +181,9 @@ Everything else is automated.
 
 ## Building a plugin (for contributors)
 
+**Step-by-step guide + copy-paste template: [docs/AUTHORING-PLUGINS.md](AUTHORING-PLUGINS.md)
+(start from `plugins/_template/`).**
+
 Add `plugins/<category>/<id>/plugin.yaml` conforming to the contract above. The onboarder
 handles install, dependency resolution, and settings — you just declare **what it needs,
 its security posture, and the setup recipe.** Every plugin MUST:

@@ -1,0 +1,37 @@
+# ── hermes-sidekick plugin template ──────────────────────────────────────────────────────
+# Copy this folder to plugins/<category>/<your-id>/ and fill it in. The onboarder reads
+# plugin.yaml to know what to offer and how to install it. Keep the lines for YOUR category
+# (channel | connector | automation) and delete the rest. Full guide: docs/AUTHORING-PLUGINS.md
+# (This _template folder is ignored by the catalog — it isn't under a category dir.)
+id: your-id                     # kebab-case, unique within its category
+name: Your Plugin               # human name shown to the user
+category: connector             # channel | connector | automation
+summary: One line — what it does + its headline safety property (e.g. "Read-only. Never writes.")
+
+requires:
+  connectors: []                # ids this depends on (an automation usually needs a connector)
+  human: []                     # irreducible human steps: [oauth_consent, captcha, api_key, admin_install]
+
+security:                       # least-privilege by DEFAULT — read-only unless it truly must write
+  scopes: []                    # least-privilege scope strings (connectors)
+  writes: []                    # what it can change; empty = read-only
+  ask_first: true               # confirm before any write/action
+  unprompted: []                # OPTIONAL: specific writes allowed WITHOUT asking — justify in notes
+  send: false                   # OPTIONAL: declare if it could send; the guarantee is no send tool is exposed
+  delete: false                 # OPTIONAL: declare if it could delete
+  secrets_location: vm          # secrets live ONLY in the user's VM (chmod 600) — never in this repo
+
+setup:                          # ordered steps the onboarder runs; each is auto | human | verify
+  - human:  "What the person must do (approve OAuth, solve a captcha, provide a key)"
+  - auto:   "A command the onboarder runs in the VM"
+  - verify: "A check that proves it worked — the onboarder won't continue until this passes"
+
+settings: {}                    # user-tunable options; these become this plugin's block in the profile
+
+hermes:                         # which Hermes primitive this wires
+  kind: mcp                     # mcp (connector) | platform (channel) | cron (automation)
+  # connector:   server: <mcp-server-name>   permissions: <scope-set>
+  # automation:  schedule: "0 8 * * *"       # + set `runs: prompt.md` below
+
+# runs: prompt.md               # automations ONLY — the instructions the agent follows each run
+# notes: >                      # anything a reviewer should know (security rationale, gotchas)

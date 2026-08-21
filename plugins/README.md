@@ -15,8 +15,9 @@ Categories:
 - **connectors/** — what it can access (Gmail, Calendar, …)
 - **automations/** — what it does proactively (morning brief, birthday reminders…)
 
-The full plugin contract and design are in
-[../docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md). The manifests here — **Signal, Gmail,
+**Want to add one?** Copy [`_template/`](_template/) and follow
+[../docs/AUTHORING-PLUGINS.md](../docs/AUTHORING-PLUGINS.md) (~5 min). The full plugin contract
+and design are in [../docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md). The manifests here — **Signal, Gmail,
 Calendar, Contacts** — are the reference examples: real, working setups distilled into the
 contract. Copy one to author a new plugin. (**iMessage** and **Location** carry
 `status: planned` — they describe intended setups, not verified ones.)

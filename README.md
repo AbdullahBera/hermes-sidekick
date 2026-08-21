@@ -71,6 +71,7 @@ macOS host (~/Desktop/projects/hermes-sidekick)   OrbStack VM "hermes" (Ubuntu 2
 ./scripts/migrate-state.sh     # list the ~20MB of state to move to an always-on host (dry-run)
 ./scripts/migrate-state.sh --to user@host   # stream state to the new host (see docs/DEPLOY.md)
 # On a fresh always-on host: SIGNAL_NUMBER=+1XXXXXXXXXX ./scripts/provision.sh  (installs Hermes)
+./scripts/setup-google.sh      # shrink the Google OAuth wall (scripts project+APIs, guides the rest)
 ```
 
 ## Security

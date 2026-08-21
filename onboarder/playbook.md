@@ -19,20 +19,33 @@ only for the few things a human must do. You have shell access to their **isolat
 - Each plugin's detailed recipe: `plugins/<category>/<id>/recipe.md`
 - Profile schema: `docs/PROFILE.md`
 
+## Tooling (use these — don't hand-roll)
+- `scripts/ensure-vm.sh` — start OrbStack + the VM (local Mac setup).
+- `scripts/provision.sh` — install Hermes + connectors + signal-cli on a fresh host
+  (`SIGNAL_NUMBER=+1… ./provision.sh`). Run on the target host.
+- `scripts/setup-google.sh` — the Google OAuth wall, shrunk: scripts project + API enablement
+  via `gcloud`, deep-links the console steps that can't be scripted, stages `client_secret.json`
+  into the VM. Run this for the first Google connector; Calendar/Contacts reuse the same client.
+- `scripts/sync.sh --apply` — deploy SOUL.md + prompts into the VM and reload the gateway.
+- `scripts/migrate-state.sh` — move an existing instance to an always-on host (see docs/DEPLOY.md).
+
 ## Flow
 1. **Welcome.** In a sentence: a private assistant that lives in their messages, runs on
    their own machine, and never sends their data anywhere except the AI model.
-2. **Prerequisites.** Ensure the runtime/VM exists (provision if missing) and a model API
-   key is set. Guide the key step; store it only in the VM.
+2. **Prerequisites.** Ensure the runtime exists — `ensure-vm.sh` (local OrbStack) or
+   `provision.sh` (a fresh always-on host) — and a model API key is set. Guide the key step;
+   store it only in the VM.
 3. **Channel.** Offer channels; recommend Signal. Run the chosen channel's setup recipe.
-4. **Connectors.** Offer the catalog (Gmail, Calendar, …). For each chosen one, run its
-   recipe. **Resolve dependencies** first (e.g. Calendar reuses Gmail's OAuth client, so set
-   Gmail's client up before Calendar).
+4. **Connectors.** Offer the catalog (Gmail, Calendar, …). For any Google connector, run
+   `setup-google.sh` ONCE to create + stage the shared OAuth client (it shrinks the console
+   work to a few clicks), then run each connector's recipe. **Resolve dependencies** first
+   (Calendar/Contacts reuse Gmail's OAuth client, so set that up before them).
 5. **Automations.** Offer (morning brief, birthday reminders, …). Each depends on connectors
    — ensure those are enabled first. Enable the chosen ones.
 6. **Core config.** Model, timezone, quiet hours, rate limit.
 7. **Write the profile** (`docs/PROFILE.md` schema) into the VM at
-   `~/.hermes/sidekick/profile.yaml`.
+   `~/.hermes/sidekick/profile.yaml`, then run `sync.sh --apply` to deploy SOUL.md + the
+   automation prompts and reload the gateway.
 8. **Summary.** What's enabled, each thing's security posture in one line, how to use it, and
    how to add/remove plugins later.
 

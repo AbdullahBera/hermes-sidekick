@@ -31,6 +31,10 @@ the VM. (Composio and other managed brokers were evaluated and rejected for priv
 
 ## One-time setup
 
+> **Shortcut:** [`scripts/setup-google.sh`](../../../scripts/setup-google.sh) automates the
+> project + API enablement (via `gcloud`) and deep-links the console steps below, then stages
+> `client_secret.json` into the VM. The steps here are the manual equivalent / reference.
+
 ### 1. Google Cloud (browser, ~10 min)
 - New project → enable the **Gmail API**.
 - **OAuth consent screen** → External; add yourself as a user; **Publish app → In

@@ -77,6 +77,9 @@ macOS host (~/Desktop/projects/hermes-sidekick)   OrbStack VM "hermes" (Ubuntu 2
 ## Security
 
 - Secrets live only in the VM's `~/.hermes/.env` (chmod 600), never in this repo.
+- **Automated secret scanning:** [gitleaks](https://github.com/gitleaks/gitleaks) runs as a
+  pre-commit hook (`.pre-commit-config.yaml`) and in CI on every push (`.github/workflows/secret-scan.yml`),
+  tuned via `.gitleaks.toml`. Enable the local hook once with `pip install pre-commit && pre-commit install`.
 - `backup-config.sh` redacts all secret values before writing to the host.
 - The VM is the trust boundary: prompt-injection or a misbehaving tool is confined to the VM, not your Mac. Keep untrusted web browsing and secret-holding sessions separate.
 

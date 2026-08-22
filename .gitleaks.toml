@@ -1,0 +1,31 @@
+# gitleaks config for hermes-sidekick — https://github.com/gitleaks/gitleaks
+# Public, security-first repo: this scans commits (pre-commit hook + CI) for secrets/PII.
+# Start from gitleaks' built-in rules, add a phone-number rule (CLAUDE.md forbids real numbers),
+# and allowlist the placeholders we use ON PURPOSE so they don't trip the scan.
+title = "hermes-sidekick secret scan"
+
+[extend]
+useDefault = true
+
+# Real phone numbers must never land here — placeholders use +1XXXXXXXXXX (letters, not digits),
+# so this digit-only pattern matches a real number but never the placeholder.
+[[rules]]
+id = "e164-phone-number"
+description = "Real phone number (E.164) — use the +1XXXXXXXXXX placeholder instead"
+regex = '''\+[1-9]\d{9,14}\b'''
+tags = ["pii", "phone"]
+
+[allowlist]
+description = "Placeholders and examples that are safe by design"
+regexes = [
+  '''sk-ant-\.\.\.''',          # Anthropic key placeholder in docs/.env.example
+  '''\+1X{6,}''',               # +1XXXXXXXXXX phone placeholder
+  '''(you|boss|mom)@[a-z]+\.(com|family\.com)''',  # example email placeholders
+  '''noreply@anthropic\.com''', # commit trailer
+]
+# Example/template files are placeholders by definition.
+paths = [
+  '''\.env\.example''',
+  '''.*\.example\.(ya?ml|md)''',
+  '''plugins/_template/.*''',
+]

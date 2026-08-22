@@ -46,8 +46,8 @@ connectors:
     buffer_mins: 10                # arrive this many minutes early ("leave by")
     home:                          # your home coords (VM-only) — origin for travel time
       label: "home"
-      latitude: 37.77
-      longitude: -122.42
+      latitude: 40.7128            # example only — replace with your own coordinates
+      longitude: -74.0060
 
 automations:
   morning-brief:
@@ -55,8 +55,8 @@ automations:
     time: "08:00"
     include: [weather, calendar, email]
     weather:                       # open-meteo (keyless); your coordinates
-      latitude: 37.77
-      longitude: -122.42
+      latitude: 40.7128            # example only — replace with your own coordinates
+      longitude: -74.0060
       units: imperial              # imperial (°F) | metric (°C)
       label: "San Francisco"       # human name, for the brief text
   birthday-reminder:

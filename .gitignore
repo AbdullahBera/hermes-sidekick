@@ -4,6 +4,14 @@
 .env.*.local
 !.env.example
 
+# Personal data — the REAL profile + memory live ONLY in the VM, never here.
+# (The tracked templates are profile.example.yaml / USER.example.md, which don't match these.)
+profile.yaml
+USER.md
+USER_DETAIL.md
+**/sidekick/profile.yaml
+**/memories/*.md
+
 # Any raw (unredacted) env captured locally
 *.env.raw
 docs/backups/*.env.raw

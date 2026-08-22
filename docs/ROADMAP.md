@@ -31,7 +31,7 @@ Two tracks, chosen deliberately: **(2) make it more capable** and **(3) make it 
   the morning brief: for today's located events, travel time from home + "leave by 2:38". The
   morning heads-up works today; real-time "leave now" alerts still want always-on. *(set your
   home coords in `connectors.location.home`.)*
-- **Notes — Notion + Obsidian** — surface/search your notes, capture new ones. (You live in both.)
+- **Notes** (Notion / Obsidian / …) — surface/search your notes, capture new ones.
 - **Tasks / to-do** — Google Tasks / Todoist / Things — pull your to-dos into the day.
 - **Meeting prep** — before a meeting: who's attending, last thread with them, relevant doc.
 - **Weekly review** — Sunday: the week ahead + what slipped.
@@ -53,8 +53,8 @@ Two tracks, chosen deliberately: **(2) make it more capable** and **(3) make it 
 - **Cron tidy-up** — birthday-reminder shares 08:00 with the brief; shift to 08:30.
 
 ### B. More connectors (what it can access)
-- Location/Maps · Notes (Notion/Obsidian) · Tasks · Flights/travel (you build a flight app) ·
-  Finance (spending awareness — sensitive; halal/riba-aware).
+- Location/Maps · Notes (Notion/Obsidian) · Tasks · Flights/travel · Finance
+  (spending awareness — sensitive; supports ethical-finance constraints).
 
 ### C. More automations (what it does proactively)
 - Commute/meeting prep · weekly review · commitment extraction (deadlines/promises from email) ·
@@ -67,9 +67,9 @@ Two tracks, chosen deliberately: **(2) make it more capable** and **(3) make it 
 - **iMessage** (BlueBubbles — bridge prepped) · Telegram / WhatsApp / Slack · voice
   (voice notes in, spoken replies).
 
-### F. Bespoke to you (high personal value)
-- Wedding-planning assistant (Istanbul venue, timeline, vendor follow-ups) · flight-app
-  copilot · work helper (Aware Health — ⚠️ HIPAA/PHI, keep bespoke + careful).
+### F. Bespoke personal helpers (high personal value)
+- Event/trip planning, a copilot for your own projects, or a work assistant — configured per
+  user. Anything sensitive or regulated (e.g. health/PHI) stays private and handled carefully.
 
 ---
 

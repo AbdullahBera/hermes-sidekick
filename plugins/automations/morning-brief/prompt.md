@@ -22,6 +22,16 @@ always: plain, short, warm, no fluff.
    61–67 rain · 71–77 snow · 80–82 showers · 95–99 thunderstorm) and note conditions + high/low.
 3. Read **today's** calendar events: `get_events` with `time_min`/`time_max` bracketing today
    in `core.timezone` (leave `calendar_id` at its default — don't override it).
+   **Commute:** if `connectors.location.enabled` and its `home` lat/lon are set (non-zero), then
+   for each of today's events that has a real location (skip all-day / no-location events),
+   compute travel time from home in the terminal (keyless):
+   - geocode the event location — `curl -s -H "User-Agent: hermes-sidekick/1.0"
+     "https://nominatim.openstreetmap.org/search?q=<url-encoded location>&format=json&limit=1"`
+     → take `[0].lat` / `[0].lon`;
+   - route home→there — `curl -s "https://router.project-osrm.org/route/v1/<mode>/<homeLon>,<homeLat>;<dstLon>,<dstLat>?overview=false"`
+     → `routes[0].duration` (seconds). **OSRM uses lon,lat order.** `mode` = `connectors.location.mode`.
+   - "leave by" = event start − duration − `connectors.location.buffer_mins`. Report distance in
+     `connectors.location.units`. If a lookup fails, just skip that event's commute quietly.
 4. **Email.** Only if `email` is in `automations.morning-brief.include` (otherwise skip email
    entirely):
    - If `automations.email-triage` is enabled with `run: with-morning-brief`, **read and follow
@@ -34,7 +44,8 @@ always: plain, short, warm, no fluff.
      or fetch full message bodies.
 5. Compose **one** short message:
    - Open with weather (if fetched) + the day at a glance — number of events + the first/most important one.
-   - Today's events: one short line each (time + what).
+   - Today's events: one short line each (time + what). For an event with a computed commute,
+     add "~N min away, leave by HH:MM" to its line.
    - Then "Worth a look:" — the 1–3 emails that actually need attention, one line each
      (who + gist + whether it needs a reply). Note how many others there are.
 6. Include only what's useful. Empty day + quiet inbox → a single line
@@ -42,4 +53,6 @@ always: plain, short, warm, no fluff.
 7. **Never take any action** on email or calendar. If something needs a reply or RSVP,
    offer — "want me to draft a reply to X?" — and wait for a yes.
 
-Rules: plain text, no markdown, tight. It's a text message, not a report.
+Rules: plain text, no markdown, tight. **Your final response IS the message that gets sent —
+output ONLY the finished brief. No preamble, no narrating your steps ("composing now", unit
+second-guessing, tool talk).** It's a text message, not a report.

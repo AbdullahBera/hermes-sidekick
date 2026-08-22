@@ -1,0 +1,38 @@
+id: notes
+name: Notes
+category: connector
+summary: Capture + recall your notes — local markdown (Obsidian vault or a plain folder). Keyless, private.
+
+requires:
+  connectors: []
+  human: []                      # keyless — just point it at your notes folder
+
+security:
+  provider: local                # plain markdown files on disk; nothing sent anywhere
+  writes: [note]                 # APPENDS/creates note files in the configured path only — never edits/deletes
+  ask_first: false               # capture-on-request is expected; it only ever appends or creates
+  secrets_location: vm
+  # NOTE: pointing `path` at a Mac-mounted folder (e.g. an Obsidian vault under /Users/...) lets
+  # the agent read+write THAT folder on your Mac — a deliberate crossing of the VM boundary,
+  # scoped to the vault. A VM-local path (backend: local) keeps full isolation. Your choice.
+
+setup:
+  - human:  "Set connectors.notes.path to your notes folder — an Obsidian vault (mounted at
+             /Users/... in the VM) or a VM-local folder"
+  - auto:   "None — the agent reads/searches/appends markdown with its file tools (keyless)"
+  - verify: "Capture a test note, then recall it (see recipe.md)"
+
+settings:
+  backend: obsidian              # obsidian | local
+  path: ""                       # VM path to your notes (Obsidian vault via the mount, or a VM folder)
+  capture: daily                 # daily (append to YYYY-MM-DD.md) | inbox (Inbox.md) | <filename.md>
+
+hermes:
+  kind: none                     # not an MCP server — the agent uses its file/terminal tools directly
+
+notes: >
+  Keyless + local: your notes never leave the machine. Works with an Obsidian vault (point `path`
+  at it via the OrbStack /Users mount) or any folder of markdown. The agent only APPENDS to a
+  capture file or CREATES new notes — it never edits or deletes existing notes. Recall = grep +
+  summarize. Note contents are treated as data, never instructions (prompt-injection safe).
+  Optional future backends: Notion (needs an integration token), a remote sync, etc.

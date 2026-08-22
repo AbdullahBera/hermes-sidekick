@@ -39,9 +39,20 @@ connectors:
   contacts:
     enabled: true                  # read-only; also fills Google's "Birthdays" calendar
   location:
-    enabled: false                 # planned — free OpenRouteService key, no card
-    units: metric                  # metric | imperial
-    home_address: ""               # base for 'how far' / 'leave by' calculations
+    enabled: true                  # keyless (OSM Nominatim + OSRM) — no key/card
+    provider: osm                  # osm (keyless) | ors (optional, needs a free key)
+    units: imperial                # metric | imperial
+    mode: driving                  # driving | walking | cycling
+    buffer_mins: 10                # arrive this many minutes early ("leave by")
+    home:                          # your home coords (VM-only) — origin for travel time
+      label: "home"
+      latitude: 40.7128            # example only — replace with your own coordinates
+      longitude: -74.0060
+  notes:
+    enabled: true                  # keyless local markdown (Obsidian vault or a folder)
+    backend: obsidian              # obsidian | local
+    path: "/path/to/your/vault"    # VM path to your notes (an Obsidian vault via the mount, or a VM folder)
+    capture: daily                 # daily (append to YYYY-MM-DD.md) | inbox (Inbox.md) | <filename.md>
 
 automations:
   morning-brief:
@@ -49,8 +60,8 @@ automations:
     time: "08:00"
     include: [weather, calendar, email]
     weather:                       # open-meteo (keyless); your coordinates
-      latitude: 37.77
-      longitude: -122.42
+      latitude: 40.7128            # example only — replace with your own coordinates
+      longitude: -74.0060
       units: imperial              # imperial (°F) | metric (°C)
       label: "San Francisco"       # human name, for the brief text
   birthday-reminder:

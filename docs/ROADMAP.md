@@ -31,7 +31,8 @@ Two tracks, chosen deliberately: **(2) make it more capable** and **(3) make it 
   the morning brief: for today's located events, travel time from home + "leave by 2:38". The
   morning heads-up works today; real-time "leave now" alerts still want always-on. *(set your
   home coords in `connectors.location.home`.)*
-- **Notes** (Notion / Obsidian / …) — surface/search your notes, capture new ones.
+- **Notes** ✅ **live (keyless, local markdown — Obsidian vault or a folder)** — capture ("note: …"
+  → appends a dated line) + recall ("search my notes for …"). Append/create only, never edits.
 - **Tasks / to-do** — Google Tasks / Todoist / Things — pull your to-dos into the day.
 - **Meeting prep** — before a meeting: who's attending, last thread with them, relevant doc.
 - **Weekly review** — Sunday: the week ahead + what slipped.

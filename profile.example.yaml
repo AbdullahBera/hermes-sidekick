@@ -48,6 +48,11 @@ connectors:
       label: "home"
       latitude: 40.7128            # example only — replace with your own coordinates
       longitude: -74.0060
+  notes:
+    enabled: true                  # keyless local markdown (Obsidian vault or a folder)
+    backend: obsidian              # obsidian | local
+    path: "/path/to/your/vault"    # VM path to your notes (an Obsidian vault via the mount, or a VM folder)
+    capture: daily                 # daily (append to YYYY-MM-DD.md) | inbox (Inbox.md) | <filename.md>
 
 automations:
   morning-brief:

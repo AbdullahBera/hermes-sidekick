@@ -1,0 +1,36 @@
+id: evening-prep
+name: Evening prep
+category: automation
+summary: Each evening, a look at tomorrow — first event, calendar conflicts, and anything to sort tonight. Read-only.
+
+requires:
+  connectors: [calendar]        # tomorrow's events; gmail (optional) for time-sensitive mail
+  human: []
+
+security:
+  writes: []                    # read-only — it only reads calendar/email and messages YOU
+  ask_first: false              # sends a summary; never acts on your accounts
+  secrets_location: vm
+
+setup:
+  - human:  "Pick an evening delivery time and confirm core.timezone is right"
+  - auto:   "Install the cron from schedule.cron (rewritten from settings.time); point it at prompt.md"
+  - verify: "Run prompt.md by hand — a tomorrow-preview arrives at the channel's home_channel"
+
+settings:
+  time: "20:30"                 # local time (see core.timezone); an evening slot
+  include: [calendar, email]    # what to cover
+  tight_gap_mins: 20            # flag back-to-backs with less than this many minutes between them
+
+schedule:
+  cron: "30 20 * * *"           # daily 20:30 local; onboarder rewrites from settings.time
+
+runs: prompt.md
+
+hermes:
+  kind: cron
+
+notes: >
+  Read-only; obeys core.quiet_hours. Complements the morning brief with a forward look:
+  tomorrow's shape, calendar conflicts (double-bookings + tight back-to-backs), early starts,
+  and a nudge for anything worth handling tonight. Never acts — it offers and waits for a "yes".

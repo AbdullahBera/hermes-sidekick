@@ -64,3 +64,8 @@ automations:
     max_items: 25                  # cap messages examined per run (token budget)
     auto_draft: true               # auto-draft clearly-needed replies, then show them (never send)
     surface: [urgent, people]      # ranked: what to pull into "Needs you" first (rest is filed as noise)
+  evening-prep:
+    enabled: true
+    time: "20:30"                  # an evening slot; keep it out of quiet hours
+    include: [calendar, email]
+    tight_gap_mins: 20             # flag back-to-backs closer than this

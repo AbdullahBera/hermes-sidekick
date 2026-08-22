@@ -23,11 +23,12 @@ The theme: it tells you the right thing at the right time, and handles the follo
   and "leave by X to make your 3pm." → `plugins/connectors/location`
 - **Meeting & commute prep:** before an event, a heads-up with location, travel time, and
   what you need to bring.
-- **Calendar-conflict alerts:** flag double-bookings and tight back-to-backs as they appear.
+- **Calendar-conflict alerts:** ✅ live (in evening prep) — flags double-bookings + tight back-to-backs for tomorrow.
 - **Email triage:** ✅ **live** — files your inbox into your own Gmail labels, surfaces only what
   needs you, and auto-drafts replies (never sends). Folds into the morning brief (check-in
   triggered). Deployed via `scripts/sync.sh` and verified end-to-end.
-- **Evening prep:** "tomorrow you've got X — anything to sort tonight?"
+- **Evening prep:** ✅ live — an evening look at tomorrow (first event, conflicts, early starts,
+  prep) + "anything to sort tonight?". A second daily touchpoint alongside the morning brief.
 - **Follow-ups & nudges:** "you meant to get back to Sarah — want a draft?"
 - **Profile-driven config:** automations read `profile.yaml` (quiet hours, what to include)
   so proactivity is tuned to you.

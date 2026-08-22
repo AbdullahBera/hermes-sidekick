@@ -52,8 +52,9 @@ Runtime is ready. Start the AI onboarder — it reads onboarder/playbook.md and 
 channel, connectors, and automations, pausing only for the human checkpoints (OAuth approve,
 Signal captcha):
 
-  orb run -m $VM bash -lc 'cd ~/hermes-sidekick && hermes "Act as the onboarder in onboarder/playbook.md and set me up."'
+  orb run -m $VM bash -lc 'cd ~/hermes-sidekick && hermes -z "You are the onboarder in onboarder/playbook.md. Begin setting me up and ask me what I want."'
 
+(That kicks it off one-shot; for a full back-and-forth, run \`hermes\` interactively in the VM.)
 Or drive it from your Mac with a coding agent (e.g. Claude Code) pointed at this repo.
 Prefer to do it by hand? Follow the plugin recipes + docs/AUTHORING-PLUGINS.md.
 DONE

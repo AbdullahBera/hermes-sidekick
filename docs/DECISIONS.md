@@ -117,6 +117,16 @@ Fixes landed in `onboarder/bootstrap.sh` + `scripts/provision.sh`. Verified on t
 Hermes v0.20.4 installs + runs, `workspace-mcp` installs, signal-cli 0.14.7 runs under Java 25.
 Lesson: `curl | bash` installers that exit 0 on partial failure are why the shakedown matters.
 
+### Reconciled model routing to direct Anthropic (2026-08-22)
+The live `config.yaml` had drifted to `provider: auto` with `base_url: https://openrouter.ai/api/v1`
+(an OpenRouter default), while only `ANTHROPIC_API_KEY` was present in `.env` — contradicting the
+"direct Anthropic, no middleman" decision above. Set it explicitly: `model.provider: anthropic`,
+`model.default: claude-sonnet-5`, and unset `base_url` (so it uses Anthropic's endpoint). The 4
+automation crons carried pinned `model_snapshot`s and would fail-closed on the change, so each was
+re-pinned (`hermes cron edit <id> --model claude-sonnet-5 --provider anthropic`). Verified with a
+live one-shot call (returned "pong"). Also fixed `bootstrap.sh`'s onboarder-launch line — `hermes`
+needs a subcommand/flag (`hermes -z "…"`), not a bare prompt.
+
 ## Open / next
 - Optional messaging gateway (Telegram/Slack) via `hermes gateway install`.
 - Crons for background automation.

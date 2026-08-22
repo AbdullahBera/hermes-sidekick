@@ -69,3 +69,10 @@ automations:
     time: "20:30"                  # an evening slot; keep it out of quiet hours
     include: [calendar, email]
     tight_gap_mins: 20             # flag back-to-backs closer than this
+  follow-up-nudges:
+    enabled: true
+    time: "09:00"                  # silent unless a real person's email has gone unanswered
+    stale_after_days: 2
+    max_age_days: 10
+    max_nudges: 3
+    auto_draft: false              # offer + draft on a yes (older threads need your context)

@@ -29,7 +29,8 @@ The theme: it tells you the right thing at the right time, and handles the follo
   triggered). Deployed via `scripts/sync.sh` and verified end-to-end.
 - **Evening prep:** ✅ live — an evening look at tomorrow (first event, conflicts, early starts,
   prep) + "anything to sort tonight?". A second daily touchpoint alongside the morning brief.
-- **Follow-ups & nudges:** "you meant to get back to Sarah — want a draft?"
+- **Follow-ups & nudges:** ✅ live — catches real-people emails you received days ago and haven't
+  answered; offers a draft. Silent unless something's genuinely dropped.
 - **Profile-driven config:** automations read `profile.yaml` (quiet hours, what to include)
   so proactivity is tuned to you.
 

@@ -1,0 +1,39 @@
+id: follow-up-nudges
+name: Follow-up nudges
+category: automation
+summary: Catches emails from real people you received days ago and haven't replied to. Offers a draft; never sends.
+
+requires:
+  connectors: [gmail]           # reads mail + thread state; drafting (on a yes) uses gmail
+  human: []
+
+security:
+  writes: [draft]               # only if you say yes — never sends, never archives
+  ask_first: true               # it OFFERS a draft (older threads need your context); waits for a yes
+  secrets_location: vm
+
+setup:
+  - human:  "Pick a time and confirm core.timezone"
+  - auto:   "Install the cron from schedule.cron (rewritten from settings.time); point it at prompt.md"
+  - verify: "Run prompt.md by hand — either a nudge for a genuinely-dropped thread arrives, or it stays silent"
+
+settings:
+  time: "09:00"                 # local; a morning slot, just after the brief
+  stale_after_days: 2           # only nudge once a thread has sat unanswered this long
+  max_age_days: 10              # ignore threads older than this (stale/moot)
+  max_nudges: 3                 # surface at most this many, most-important first
+  auto_draft: false             # false = offer + draft on a yes; true = auto-draft then show (per SOUL.md)
+
+schedule:
+  cron: "0 9 * * *"             # daily 09:00 local; onboarder rewrites from settings.time
+
+runs: prompt.md
+
+hermes:
+  kind: cron
+
+notes: >
+  Silent by default — it only messages you when a real person's email has genuinely gone
+  unanswered (you are the last one who owes a reply). Read-only except an offered draft on a
+  yes. Obeys core.quiet_hours; prioritizes connectors.gmail.important_senders. Complements
+  email triage (which handles the last 24h) by catching what slipped over the past days.

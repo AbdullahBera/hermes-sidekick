@@ -27,8 +27,10 @@ your OAuth, no broker). This roadmap tracks what's shipped and where we're heade
 Two tracks, chosen deliberately: **(2) make it more capable** and **(3) make it spreadable**.
 
 ### (2) More capable — do more for you
-- **Location / Maps (OpenRouteService, free)** → **commute prep** — "your 3pm is ~25 min away,
-  leave by 2:40." The flagship. The morning-heads-up version works without always-on. *[next up]*
+- **Location / Maps** ✅ **live (keyless — OSM Nominatim + OSRM, no key)** → **commute prep** in
+  the morning brief: for today's located events, travel time from home + "leave by 2:38". The
+  morning heads-up works today; real-time "leave now" alerts still want always-on. *(set your
+  home coords in `connectors.location.home`.)*
 - **Notes — Notion + Obsidian** — surface/search your notes, capture new ones. (You live in both.)
 - **Tasks / to-do** — Google Tasks / Todoist / Things — pull your to-dos into the day.
 - **Meeting prep** — before a meeting: who's attending, last thread with them, relevant doc.

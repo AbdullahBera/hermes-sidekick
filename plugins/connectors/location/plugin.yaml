@@ -1,38 +1,41 @@
 id: location
 name: Location & Maps
 category: connector
-status: planned          # roadmap item — not yet wired
-summary: Addresses, distances, ETAs, and "leave by" timing — via OpenRouteService (free, no card).
+summary: Geocoding, distances, ETAs, and "leave by" timing — keyless (OpenStreetMap), no key/card.
 
 requires:
   connectors: []
-  human:
-    - openrouteservice_key   # free ORS API key — no billing / no card
+  human: []                    # keyless by default — nothing to sign up for
 
 security:
-  provider: openrouteservice   # third party: geocode/route queries go to ORS (OpenStreetMap data)
+  provider: openstreetmap      # geocode via Nominatim, routing via OSRM — public OSM services
   writes: []                   # read-only lookups; no account actions
-  ask_first: false             # it only answers you
-  secrets_location: vm         # ORS key in ~/.hermes/.env
+  ask_first: false             # it only answers you / feeds commute prep
+  secrets_location: vm         # only if you opt into ORS (an API key in ~/.hermes/.env)
 
 setup:
-  - human:  "Get a free OpenRouteService API key (no card) at openrouteservice.org"
-  - auto:   "Register the ORS MCP server with the key (see hermes.server below — still to be
-             chosen); wire geocode + directions + distance-matrix"
-  - verify: "A geocode and a directions query both return results"
+  - human:  "Set connectors.location.home (your home latitude/longitude) in the profile"
+  - auto:   "None — it's keyless curl calls from the automation prompts (Nominatim + OSRM)"
+  - verify: "A geocode + a route both return results (see recipe.md)"
 
 settings:
-  units: metric              # metric | imperial
-  home_address: ""           # base for 'how far' / 'leave by' calculations
+  provider: osm                # osm (keyless Nominatim + OSRM) | ors (optional, more reliable, needs key)
+  units: metric                # metric | imperial
+  mode: driving                # driving | walking | cycling
+  buffer_mins: 10              # arrive this many minutes early when computing "leave by"
+  home:                        # origin for travel time (your home; VM-only, never in the repo)
+    label: "home"
+    latitude: 0.0
+    longitude: 0.0
 
 hermes:
-  kind: mcp
-  server: ""                 # TBD — no ORS MCP server picked yet (build one or adopt an
-                             # existing one); must be pinned before status leaves 'planned'
-  permissions: []            # ORS auth is a single API key, not scopes — read-only either way
+  kind: none                   # not an MCP server — a keyless HTTP capability the prompts curl
+                               # (like the weather line). Optional ORS upgrade would add a key.
 
 notes: >
-  OpenStreetMap-based via ORS — free, no card. Great for addresses, distances, ETAs, and
-  "leave by" nudges; powers commute/meeting-prep automations. Privacy note: the address or
-  coordinates you look up are sent to ORS's servers. For rich business data (hours, ratings)
-  Google Places is stronger but requires billing.
+  Keyless via public OpenStreetMap services: Nominatim for geocoding
+  (https://nominatim.openstreetmap.org, requires a User-Agent header, ~1 req/sec) and OSRM for
+  routing (https://router.project-osrm.org). Powers commute/meeting prep ("leave by 2:38 for
+  your 3pm"). Privacy: the addresses/coords you look up are sent to these public OSM servers.
+  Optional upgrade: set provider: ors with a free OpenRouteService key for higher reliability,
+  or Google for rich place data (needs billing). Rich real-time "leave now" alerts want always-on.

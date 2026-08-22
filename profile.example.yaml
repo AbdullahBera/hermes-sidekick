@@ -39,9 +39,15 @@ connectors:
   contacts:
     enabled: true                  # read-only; also fills Google's "Birthdays" calendar
   location:
-    enabled: false                 # planned — free OpenRouteService key, no card
-    units: metric                  # metric | imperial
-    home_address: ""               # base for 'how far' / 'leave by' calculations
+    enabled: true                  # keyless (OSM Nominatim + OSRM) — no key/card
+    provider: osm                  # osm (keyless) | ors (optional, needs a free key)
+    units: imperial                # metric | imperial
+    mode: driving                  # driving | walking | cycling
+    buffer_mins: 10                # arrive this many minutes early ("leave by")
+    home:                          # your home coords (VM-only) — origin for travel time
+      label: "home"
+      latitude: 37.77
+      longitude: -122.42
 
 automations:
   morning-brief:

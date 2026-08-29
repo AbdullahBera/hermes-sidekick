@@ -4,6 +4,15 @@ hermes-sidekick is a private, self-hosted personal assistant you text — set up
 onboarder, composed from opt-in plugins. It stays private and secure by construction (your VM,
 your OAuth, no broker). This roadmap tracks what's shipped and where we're headed.
 
+## Positioning (the wedge)
+The category is converging on "act + remember + connected accounts" — that's now table stakes.
+The frontier is **real execution** (driving a browser to do live web tasks) and a **trust
+standard** (read the live source before acting, ask-first on money/identity, cite sources with
+links, sensitive data through a secure link — never the chat). Our distinct wedge: deliver that
+execution **privately, on infrastructure the user owns** — open, transparent, self-hosted — the
+opposite of a hosted service that won't disclose where your data lives. Convenience is
+commoditizing; **private, owned execution** is the defensible position.
+
 ## Shipped ✅
 - **Channel:** Signal. **Model:** Claude Sonnet 5 via the **direct Anthropic** provider.
   **Voice:** concise, human, text-native; matches your tone (Turkish for Turkish names).
@@ -33,6 +42,11 @@ Two tracks, chosen deliberately: **(2) make it more capable** and **(3) make it 
   home coords in `connectors.location.home`.)*
 - **Notes** ✅ **live (keyless, local markdown — Obsidian vault or a folder)** — capture ("note: …"
   → appends a dated line) + recall ("search my notes for …"). Append/create only, never edits.
+- **Web actions (private browser automation)** ⭐ *the category frontier* — drive a real headless
+  browser **inside your VM** to do live web tasks: fill a cart and stop before checkout, run a
+  flight check-in and stop before anything that charges, pull info from the live page. Read the
+  live source before acting; never spend money or act in your name without a "yes". (Hermes ships
+  browser tools, so it's buildable on-stack.) The edge: this runs on infra *you own*.
 - **Tasks / to-do** — Google Tasks / Todoist / Things — pull your to-dos into the day.
 - **Meeting prep** — before a meeting: who's attending, last thread with them, relevant doc.
 - **Weekly review** — Sunday: the week ahead + what slipped.
@@ -71,6 +85,23 @@ Two tracks, chosen deliberately: **(2) make it more capable** and **(3) make it 
 ### F. Bespoke personal helpers (high personal value)
 - Event/trip planning, a copilot for your own projects, or a work assistant — configured per
   user. Anything sensitive or regulated (e.g. health/PHI) stays private and handled carefully.
+
+### G. Execution + trust standard (the category frontier)
+- **Web actions** — headless-browser automation in your VM (bookings, checkout, flight check-in,
+  shopping); always **stop before any charge or identity step** and hand back for a "yes".
+- **Tap-to-approve payments** — a tokenized/virtual card + one-tap approval for the exact amount,
+  so a merchant never sees your real card.
+- **Wallet passes** — deliver boarding passes / tickets as Apple Wallet passes.
+- **Proactive watching** — sit on a thread or a page and alert the moment something changes (a
+  reply lands, a price drops, a booking window opens). Extends follow-up nudges.
+- **Trust standard** — read the live source before acting; cite claims with links; route
+  sensitive data (passport, card) through a secure fill-in link, never the chat thread.
+- **Human escalation** — when it genuinely doesn't know, route the question to a human and bring
+  back the answer, instead of guessing.
+
+### H. Growth (distribution mechanics)
+- Invite-link virality (existing users invite others), waitlist/early-access framing, and a
+  "test me cheap on something low-stakes" trust-building onboarding.
 
 ---
 

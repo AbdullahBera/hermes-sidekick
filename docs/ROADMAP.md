@@ -42,11 +42,12 @@ Two tracks, chosen deliberately: **(2) make it more capable** and **(3) make it 
   home coords in `connectors.location.home`.)*
 - **Notes** ✅ **live (keyless, local markdown — Obsidian vault or a folder)** — capture ("note: …"
   → appends a dated line) + recall ("search my notes for …"). Append/create only, never edits.
-- **Web actions (private browser automation)** ✅ **live** ⭐ — drives a real browser **inside your
-  VM** (Playwright/Chromium via `agent-browser`) to do live web tasks: fill a cart, run a check-in,
-  pull from the live page — **stopping before any charge or your-name step** (the trust standard,
-  enforced in `SOUL.md`). Runs on infra *you own*; sensitive data never enters the thread.
-  Real-time "watch a page and alert" (backlog) pairs with it.
+- **Web actions (private browser automation)** 🔨 **built** ⭐ — the agent drives a real browser
+  **inside your VM** (Playwright/Chromium via `agent-browser`) to do live web tasks, **stopping
+  before any charge or your-name step** (trust standard enforced in `SOUL.md`). Runs on infra *you
+  own*; sensitive data never enters the thread. *Browser launches + drives Chromium (verified), but
+  it's impractically slow on the GPU-less VM (software rendering) — needs a faster host or the
+  Lightpanda engine to be usable. Guardrails + capability shipped; performance is the open item.*
 - **Tasks / to-do** — Google Tasks / Todoist / Things — pull your to-dos into the day.
 - **Meeting prep** — before a meeting: who's attending, last thread with them, relevant doc.
 - **Weekly review** — Sunday: the week ahead + what slipped.

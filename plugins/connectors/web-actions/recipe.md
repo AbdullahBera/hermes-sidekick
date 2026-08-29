@@ -42,6 +42,17 @@ hermes tools list | grep browser             # confirm: ✓ enabled  browser
 `connectors.web_actions` (profile): `allowed_domains` (optional allowlist),
 `always_confirm_before_submit` (keep `true`).
 
+## Performance (important, honest)
+The browser **launches and drives Chromium** — verified. But in a **GPU-less VM** (like the
+reference OrbStack VM), Chromium falls back to **software rendering** (`swiftshader`) and is
+**impractically slow** — a trivial page took many minutes in testing. So web actions is *wired
+and functional* but needs a faster environment to be usable day-to-day:
+- Run on a host with real GPU/graphics (a Mac directly, or an x86 box), where it's fast, **or**
+- try the lighter engine (`browser.engine: lightpanda` in `config.yaml` / `AGENT_BROWSER_ENGINE=lightpanda`)
+  which skips screenshots and navigates much faster (good for fill/extract tasks).
+- Cleanup tip: if a run hangs, kill stray processes with `pkill -9 chrome` (leaves the wrapper's
+  idle sessions to time out on their own).
+
 ## Notes
 - Real-time watching (sit on a page, alert on change) pairs with this — a backlog item.
 - Keep the ask-first rule sacred: this is the capability most able to spend money or act as you.

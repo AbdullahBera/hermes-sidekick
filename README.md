@@ -4,6 +4,8 @@ Host-side **control folder** ("cockpit") for a self-hosted [Hermes Agent](https:
 
 The agent itself is **not** in this folder — it runs sandboxed in the VM. This repo holds the helper scripts, decisions, and docs used to manage it.
 
+> **New here? → [docs/QUICKSTART.md](docs/QUICKSTART.md)** — from zero to a private assistant you text, in ~20 minutes.
+
 ## Vision
 
 The goal is to grow this into an open-source project that lets **anyone — including

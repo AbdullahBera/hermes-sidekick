@@ -42,11 +42,11 @@ Two tracks, chosen deliberately: **(2) make it more capable** and **(3) make it 
   home coords in `connectors.location.home`.)*
 - **Notes** ✅ **live (keyless, local markdown — Obsidian vault or a folder)** — capture ("note: …"
   → appends a dated line) + recall ("search my notes for …"). Append/create only, never edits.
-- **Web actions (private browser automation)** ⭐ *the category frontier* — drive a real headless
-  browser **inside your VM** to do live web tasks: fill a cart and stop before checkout, run a
-  flight check-in and stop before anything that charges, pull info from the live page. Read the
-  live source before acting; never spend money or act in your name without a "yes". (Hermes ships
-  browser tools, so it's buildable on-stack.) The edge: this runs on infra *you own*.
+- **Web actions (private browser automation)** ✅ **live** ⭐ — drives a real browser **inside your
+  VM** (Playwright/Chromium via `agent-browser`) to do live web tasks: fill a cart, run a check-in,
+  pull from the live page — **stopping before any charge or your-name step** (the trust standard,
+  enforced in `SOUL.md`). Runs on infra *you own*; sensitive data never enters the thread.
+  Real-time "watch a page and alert" (backlog) pairs with it.
 - **Tasks / to-do** — Google Tasks / Todoist / Things — pull your to-dos into the day.
 - **Meeting prep** — before a meeting: who's attending, last thread with them, relevant doc.
 - **Weekly review** — Sunday: the week ahead + what slipped.

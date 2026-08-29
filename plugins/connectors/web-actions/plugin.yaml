@@ -1,0 +1,38 @@
+id: web-actions
+name: Web Actions
+category: connector
+summary: Drive a real browser to do live web tasks — look up, fill, book — stopping before any charge or your-name step. Private, in your VM.
+
+requires:
+  connectors: []
+  human: []                      # uses Hermes's built-in browser toolset (Playwright/Chromium)
+
+security:
+  provider: local-browser        # a headless Chromium the agent drives INSIDE your VM (not a vendor cloud)
+  writes: [web-form, web-cart]    # fills forms/carts; NEVER submits payment or acts in your name without a "yes"
+  ask_first: true                # hard stop before checkout / order / send / booking confirm (see SOUL.md)
+  secrets_location: vm
+  # Sensitive input (passwords, card, passport, 2FA) NEVER enters the browser or the chat — the
+  # user provides those directly. Enforced by the web-actions HARD RULE in config/SOUL.md.
+
+setup:
+  - human:  "None for you — the browser toolset ships with Hermes"
+  - auto:   "Install the browser engine: `hermes tools post-setup agent_browser` (fetches
+             Chromium); confirm the `browser` toolset is enabled via `hermes tools list`"
+  - verify: "Open a public page and read its heading back (see recipe.md)"
+
+settings:
+  allowed_domains: []            # optional allowlist; empty = any site (still bound by the ask-first rule)
+  always_confirm_before_submit: true
+
+hermes:
+  kind: none                     # the built-in `browser` toolset (Playwright/Chromium) — not an MCP server
+
+notes: >
+  The category frontier: real execution, done PRIVATELY on infra you own — the browser runs in
+  your VM, not a vendor's cloud. The agent does the work up to but NOT through anything that
+  spends money or acts in your name; it reads the live page before acting on time-sensitive
+  things; sensitive data never touches the thread or a form it fills. Guardrails live in
+  config/SOUL.md (the web-actions hard rule). The browser engine must install for your platform
+  (arm64 Linux may need the post-setup step above; if it can't launch, web actions are unavailable
+  until that's resolved).

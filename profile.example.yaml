@@ -53,6 +53,10 @@ connectors:
     backend: obsidian              # obsidian | local
     path: "/path/to/your/vault"    # VM path to your notes (an Obsidian vault via the mount, or a VM folder)
     capture: daily                 # daily (append to YYYY-MM-DD.md) | inbox (Inbox.md) | <filename.md>
+  web_actions:
+    enabled: true                  # private browser automation IN your VM (see connectors/web-actions)
+    allowed_domains: []            # optional allowlist; empty = any site (still bound by the ask-first rule)
+    always_confirm_before_submit: true  # hard stop before checkout / order / send — never override
 
 automations:
   morning-brief:

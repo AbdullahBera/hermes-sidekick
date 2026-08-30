@@ -127,6 +127,20 @@ re-pinned (`hermes cron edit <id> --model claude-sonnet-5 --provider anthropic`)
 live one-shot call (returned "pong"). Also fixed `bootstrap.sh`'s onboarder-launch line — `hermes`
 needs a subcommand/flag (`hermes -z "…"`), not a bare prompt.
 
+### End-to-end onboarding test — full pipeline validated on a fresh VM (2026-08-29)
+Ran the whole chain on an isolated fresh VM (deleted after): hardened deps → Hermes install →
+migrated the key + Google creds → registered the calendar MCP (connected, 8 tools) → set
+direct-Anthropic → `sync`-deployed SOUL + prompts → ran the morning brief through the agent. It
+produced a correct brief (real weather in the configured units + the real calendar), read-only on
+the accounts (email excluded, delivery `local`). This proves the deterministic install + config +
+connector + run pipeline works for a fresh user. Still unproven (irreducible human signups):
+creating a NEW Google OAuth client from scratch, and a NEW Signal registration.
+
+Finding + fix: the Hermes installer does NOT set up the gateway service (the **cron scheduler** +
+Signal). So a fresh `bootstrap.sh` installed everything except the thing that makes proactive
+automations fire. Fixed: bootstrap now runs `hermes gateway install` (provision.sh already did).
+Without it, everything installs cleanly but nothing ever fires.
+
 ## Open / next
 - Optional messaging gateway (Telegram/Slack) via `hermes gateway install`.
 - Crons for background automation.

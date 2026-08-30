@@ -31,8 +31,11 @@ say "3/6  Base deps (a fresh VM has none of these; without xz-utils the Hermes i
      extraction dies silently and leaves you with no working 'hermes')"
 orb run -m "$VM" bash -lc 'sudo apt-get update -y >/dev/null && sudo apt-get install -y git xz-utils ca-certificates curl >/dev/null && echo "deps: git + xz-utils ok"'
 
-say "4/6  Hermes runtime (bundles Python 3.11, node, ripgrep, ffmpeg)"
+say "4/6  Hermes runtime (bundles Python 3.11, node, ripgrep, ffmpeg) + gateway service"
 orb run -m "$VM" bash -lc 'export PATH="$HOME/.local/bin:$HOME/.hermes/bin:$PATH"; command -v hermes >/dev/null || curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash'
+# Install the gateway (runs Signal + the CRON SCHEDULER). Without it, proactive automations
+# never fire — the e2e test caught this. --no-start-now: it starts once a channel + key exist.
+orb run -m "$VM" bash -lc 'export PATH="$HOME/.local/bin:$HOME/.hermes/bin:$PATH"; hermes gateway install --system --no-start-now --start-on-login 2>/dev/null || hermes gateway install --start-on-login --no-start-now 2>/dev/null || true'
 
 say "5/6  Repo (catalog + recipes + playbook) into the VM"
 orb run -m "$VM" bash -lc "test -d ~/hermes-sidekick/.git || git clone --depth 1 '$REPO' ~/hermes-sidekick; cd ~/hermes-sidekick && git pull --ff-only 2>/dev/null || true; echo repo: \$(pwd)"

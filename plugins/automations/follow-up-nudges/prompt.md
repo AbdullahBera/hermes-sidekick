@@ -18,7 +18,8 @@ something genuinely dropped.** You never send.
    (`get_gmail_thread_content`) to confirm the last message is inbound. Drop anything automated,
    already-replied, or moot. Prioritize `important_senders`. Keep at most `max_nudges`, oldest/
    most-important first.
-4. **If there are none, stay silent** (respond with exactly `[SILENT]`).
+4. **If there are none, stay silent** — output `[SILENT]` on its own final line (that's what
+   suppresses delivery; don't tack it onto a sentence).
 5. Otherwise send ONE short message — a gentle nudge per dropped thread:
    "you haven't replied to <who> about <gist> (<N> days ago) — want a draft?"
    If `auto_draft` is true AND the sender is known, draft the reply with

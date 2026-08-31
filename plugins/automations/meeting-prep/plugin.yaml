@@ -1,0 +1,37 @@
+id: meeting-prep
+name: Meeting prep
+category: automation
+summary: Before the day's real meetings — who's attending, your last thread with them, what to bring. Read-only.
+
+requires:
+  connectors: [calendar, gmail]   # attendees from the invite; last thread from gmail
+  human: []
+
+security:
+  writes: []                      # read-only — it only reads calendar/email and messages YOU
+  ask_first: false
+  secrets_location: vm
+
+setup:
+  - human:  "Pick a time (before your usual first meeting) and confirm core.timezone"
+  - auto:   "sync.sh --apply creates the cron from this manifest + your profile (plug-and-play)"
+  - verify: "Run it by hand on a day with a real meeting — a prep note arrives; silent otherwise"
+
+settings:
+  time: "07:45"                   # before the morning brief
+  min_attendees: 2                # only prep events with at least this many people (skip solo blocks)
+  lookback_days: 30               # how far back to find your last thread with an attendee
+
+schedule:
+  cron: "45 7 * * *"              # daily 07:45 local; sync rewrites from settings.time
+
+runs: prompt.md
+
+hermes:
+  kind: cron
+
+notes: >
+  Silent unless you have a real meeting today (>= min_attendees, or a video link). For each, it
+  surfaces attendees, your most recent email thread with them, and any doc/link/location from the
+  invite — so you walk in current. Read-only; obeys core.quiet_hours. The real-time "prep me 15
+  minutes before each meeting" version wants an always-on host; this is the morning heads-up.

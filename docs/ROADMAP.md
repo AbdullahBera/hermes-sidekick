@@ -49,7 +49,8 @@ Two tracks, chosen deliberately: **(2) make it more capable** and **(3) make it 
   it's impractically slow on the GPU-less VM (software rendering) — needs a faster host or the
   Lightpanda engine to be usable. Guardrails + capability shipped; performance is the open item.*
 - **Tasks / to-do** — Google Tasks / Todoist / Things — pull your to-dos into the day.
-- **Meeting prep** — before a meeting: who's attending, last thread with them, relevant doc.
+- **Meeting prep** ✅ **live** — for the day's real meetings (≥ min_attendees or a video link):
+  who's attending, your last thread with them, any doc/location. Silent on meeting-free days.
 - **Weekly review** — Sunday: the week ahead + what slipped.
 
 ### (3) Spreadable — let others use it

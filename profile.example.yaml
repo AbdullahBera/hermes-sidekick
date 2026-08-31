@@ -91,3 +91,8 @@ automations:
     max_age_days: 10
     max_nudges: 3
     auto_draft: false              # offer + draft on a yes (older threads need your context)
+  meeting-prep:
+    enabled: true
+    time: "07:45"                  # before the morning brief; silent unless you have real meetings
+    min_attendees: 2               # only prep events with at least this many people
+    lookback_days: 30              # how far back to find your last thread with an attendee

@@ -48,7 +48,9 @@ Two tracks, chosen deliberately: **(2) make it more capable** and **(3) make it 
   own*; sensitive data never enters the thread. *Browser launches + drives Chromium (verified), but
   it's impractically slow on the GPU-less VM (software rendering) — needs a faster host or the
   Lightpanda engine to be usable. Guardrails + capability shipped; performance is the open item.*
-- **Tasks / to-do** — Google Tasks / Todoist / Things — pull your to-dos into the day.
+- **Tasks / to-do** ✅ **live (keyless, local markdown checkboxes)** — "add X to my tasks",
+  "what's on my list?", "mark X done". Append/tick only, never deletes. (Google Tasks/Todoist
+  are possible future backends.)
 - **Meeting prep** ✅ **live** — for the day's real meetings (≥ min_attendees or a video link):
   who's attending, your last thread with them, any doc/location. Silent on meeting-free days.
 - **Weekly review** — Sunday: the week ahead + what slipped.

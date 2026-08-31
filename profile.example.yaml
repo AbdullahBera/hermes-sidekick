@@ -53,6 +53,9 @@ connectors:
     backend: obsidian              # obsidian | local
     path: "/path/to/your/vault"    # VM path to your notes (an Obsidian vault via the mount, or a VM folder)
     capture: daily                 # daily (append to YYYY-MM-DD.md) | inbox (Inbox.md) | <filename.md>
+  tasks:
+    enabled: true                  # keyless local to-do list (markdown checkboxes)
+    file: "~/.hermes/tasks/tasks.md"   # a VM path (fully isolated) or a Tasks.md in your vault
   web_actions:
     enabled: true                  # private browser automation IN your VM (see connectors/web-actions)
     allowed_domains: []            # optional allowlist; empty = any site (still bound by the ask-first rule)

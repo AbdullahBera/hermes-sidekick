@@ -1,0 +1,32 @@
+id: tasks
+name: Tasks
+category: connector
+summary: A simple to-do list you manage by text — local markdown checkboxes. Keyless, private.
+
+requires:
+  connectors: []
+  human: []
+
+security:
+  provider: local               # a plain markdown file on disk; nothing sent anywhere
+  writes: [task]                # appends new tasks; ticks a task done. Never DELETES without a yes.
+  ask_first: false              # add / complete on request is expected
+  secrets_location: vm
+
+setup:
+  - human:  "Set connectors.tasks.file to a markdown file for your list (a VM path, or a file in your notes vault)"
+  - auto:   "None — the agent reads/appends/ticks checkboxes with its file tools (keyless)"
+  - verify: "Add a task, list it, mark it done (see recipe.md)"
+
+settings:
+  file: "~/.hermes/tasks/tasks.md"   # VM path (fully isolated) OR a Tasks.md in your Obsidian vault
+
+hermes:
+  kind: none                     # not an MCP server — the agent uses its file tools directly
+
+notes: >
+  Keyless + local: a plain markdown file of `- [ ]` / `- [x]` checkboxes. Add = append `- [ ]`;
+  list = the open items; done = flip `- [ ]` to `- [x]`. It never deletes a task without a "yes".
+  Point `file` at a VM path (fully isolated) or a Tasks.md in your Obsidian vault (integrates with
+  your notes, but the agent then writes that file on your Mac — same boundary note as the Notes
+  connector). Automations can later add to this list (e.g. commitments pulled from email).

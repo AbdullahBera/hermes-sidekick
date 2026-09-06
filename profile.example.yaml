@@ -60,6 +60,13 @@ connectors:
     enabled: true                  # keyless web research + cited answers (DuckDuckGo lite + curl)
     depth: standard                # quick | standard | deep
     max_sources: 5
+  read_url:
+    enabled: true                  # keyless: paste a link, it reads the live page and answers/summarizes
+    max_chars: 6000                # how much of the page text to read per answer
+  places:
+    enabled: true                  # keyless nearby search (OpenStreetMap Overpass); anchors on location.home
+    radius_m: 1500                 # search radius around the anchor point
+    max_results: 8                 # how many nearby matches to consider
   web_actions:
     enabled: true                  # private browser automation IN your VM (see connectors/web-actions)
     allowed_domains: []            # optional allowlist; empty = any site (still bound by the ask-first rule)

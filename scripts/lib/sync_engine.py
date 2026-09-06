@@ -115,11 +115,13 @@ for catdir, cat in DIRCAT.items():
             issues.append((WARN, pid, "missing recipe.md"))
 
         src = prof_autos if cat == "automation" else (prof_chans if cat == "channel" else prof_conns)
-        block = src.get(pid, {}) or {}
+        # plugin ids use hyphens (read-url); profile keys use underscores (read_url) — match either
+        block = src.get(pid) or src.get(pid.replace("-", "_")) or {}
         enabled = bool(block.get("enabled"))
         if cat == "automation" and enabled:
             for dep in ((y.get("requires") or {}).get("connectors") or []):
-                if not (prof_conns.get(dep, {}) or {}).get("enabled"):
+                dep_block = prof_conns.get(dep) or prof_conns.get(dep.replace("-", "_")) or {}
+                if not dep_block.get("enabled"):
                     issues.append((WARN, pid, f"enabled but connector '{dep}' is off"))
 
         state, cronid = "-", "-"

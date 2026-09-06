@@ -1,0 +1,31 @@
+id: research
+name: Research
+category: connector
+summary: Digs things up — multi-source web research with a concise answer and cited source links.
+
+requires:
+  connectors: []
+  human: []
+
+security:
+  provider: web                 # public web search + page fetch; read-only
+  writes: []                    # never acts — it only reads and reports
+  ask_first: false
+  secrets_location: vm
+
+setup:
+  - human:  "None — keyless web search is built in"
+  - auto:   "None"
+  - verify: "Ask it to research something; you get an answer with source links (see recipe.md)"
+
+settings:
+  depth: standard               # quick (1-2 sources) | standard (3-5) | deep (read more, cross-check)
+  max_sources: 5
+
+hermes:
+  kind: none                    # uses the built-in web search / fetch tools
+
+notes: >
+  Read-only research: searches the LIVE web, reads the actual sources, and answers concisely WITH
+  the links it used — the trust standard (cite, don't guess). "depth: deep" reads more sources and
+  cross-checks. It never fabricates a source or a fact; if it can't verify a claim, it says so.

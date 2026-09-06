@@ -56,6 +56,10 @@ connectors:
   tasks:
     enabled: true                  # keyless local to-do list (markdown checkboxes)
     file: "~/.hermes/tasks/tasks.md"   # a VM path (fully isolated) or a Tasks.md in your vault
+  research:
+    enabled: true                  # keyless web research + cited answers (DuckDuckGo lite + curl)
+    depth: standard                # quick | standard | deep
+    max_sources: 5
   web_actions:
     enabled: true                  # private browser automation IN your VM (see connectors/web-actions)
     allowed_domains: []            # optional allowlist; empty = any site (still bound by the ask-first rule)

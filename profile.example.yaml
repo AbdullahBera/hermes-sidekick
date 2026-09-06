@@ -67,6 +67,14 @@ connectors:
     enabled: true                  # keyless nearby search (OpenStreetMap Overpass); anchors on location.home
     radius_m: 1500                 # search radius around the anchor point
     max_results: 8                 # how many nearby matches to consider
+  weather:
+    enabled: true                  # keyless "weather in <place>" (open-meteo); on-demand, any location
+    units: imperial                # imperial (°F, mph) | metric (°C, km/h) — your preference, not the place's
+    forecast_days: 3               # days of outlook to pull
+  translate:
+    enabled: true                  # model-native translation — no third-party translate service is called
+    default_target: ""             # optional language to assume when none is named (e.g. "English")
+    formality: natural             # natural | formal | casual
   web_actions:
     enabled: true                  # private browser automation IN your VM (see connectors/web-actions)
     allowed_domains: []            # optional allowlist; empty = any site (still bound by the ask-first rule)

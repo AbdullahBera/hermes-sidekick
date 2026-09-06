@@ -1,0 +1,34 @@
+id: weather
+name: Weather Anywhere
+category: connector
+summary: Current conditions + a short forecast for any place you name — keyless (open-meteo), read-only.
+
+requires:
+  connectors: []                # self-contained: open-meteo has its own keyless geocoding
+  human: []                     # keyless — nothing to sign up for
+
+security:
+  provider: open-meteo          # geocoding + forecast, both free public open-meteo APIs
+  writes: []                    # read-only lookups; no account actions
+  ask_first: false
+  secrets_location: vm
+
+setup:
+  - human:  "None — keyless; optionally set connectors.weather.units in the profile"
+  - auto:   "None"
+  - verify: "Ask 'weather in <city>' — you get current conditions + a short forecast (see recipe.md)"
+
+settings:
+  units: imperial               # imperial (°F, mph) | metric (°C, km/h) — your preference, not the place's
+  forecast_days: 3              # how many days of outlook to pull
+
+hermes:
+  kind: none                    # keyless HTTP capability the prompts curl (like the morning brief's weather line)
+
+notes: >
+  Keyless "weather in X" via public open-meteo services: it geocodes the place you name
+  (geocoding-api.open-meteo.com) to lat/lon, then pulls current conditions + a short daily forecast
+  (api.open-meteo.com). Read-only. This is the on-demand counterpart to the morning brief's weather
+  line (which uses your fixed home coords). Units follow connectors.weather.units — YOUR preference,
+  never inferred from the location (a °C country doesn't force °C if you set imperial). Privacy: the
+  place name and coords go to the public open-meteo servers; no key, no account, no card.

@@ -51,4 +51,6 @@ jobs:
           cache-dependency-path: sidekick_control/package-lock.json
       - run: npm --prefix sidekick_control ci --ignore-scripts
       - run: node sidekick_control/node_modules/playwright/cli.js install --with-deps chromium
+      - name: Verify Chromium sandbox on the hosted runner
+        run: bash scripts/ci-browser-sandbox.sh
       - run: npm --prefix sidekick_control test

@@ -57,6 +57,14 @@ fixture origins. Browser sandboxing stays enabled; a sandbox startup failure is 
 silently worked around. GETs can have side effects on badly designed websites: navigation is
 not a universal proof of read-only server behavior. Use trusted origins and minimal account access.
 
+On Ubuntu versions that restrict unprivileged user namespaces, the administrator must allow
+the installed Chromium executable to create its sandbox through an appropriate AppArmor
+profile. Follow [Chromium's per-executable profile guidance](https://chromium.googlesource.com/chromium/src/+/main/docs/security/apparmor-userns-restrictions.md).
+Use the exact service-private browser path; verify it after browser upgrades. The CI-only
+helper loads profiles for the downloaded test binaries on the disposable hosted runner and
+checks a blank browser launch. It does not alter the global namespace restriction or disable
+Chromium's sandbox. Do not use that CI helper to configure a user's VM.
+
 ## The trust boundary
 
 The owner and agent use **different Unix sockets**. Owner methods are absent from the agent

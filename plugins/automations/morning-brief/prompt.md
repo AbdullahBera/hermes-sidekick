@@ -1,5 +1,7 @@
 # Morning brief — run instructions
 
+Before any work, load the profile. If it is missing/invalid, this automation is not explicitly enabled, or any required connector is disabled, stop silently. Skip disabled optional connectors. Never route around a disabled capability using shell or HTTP.
+
 You're sending the user their morning brief over their messaging channel. Same voice as
 always: plain, short, warm, no fluff.
 

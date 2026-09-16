@@ -85,3 +85,17 @@ Keep it open: pick the trigger, the wording, the recurrence, and the delivery th
 Discover (reads the catalog) → resolve dependencies (`requires.connectors`) → execute your
 `setup` recipe (auto/human/verify) → write the user's profile → done. The full flow is in
 [`../onboarder/playbook.md`](../onboarder/playbook.md).
+
+
+## Sync validation and disabling
+
+Use five-field numeric cron expressions (including lists, ranges and steps). Profile `time`
+overrides the hour/minute while preserving the manifest's calendar-day fields. Unknown IDs,
+duplicate aliases/YAML keys, malformed settings, missing prompts, and disabled required
+connectors block sync before any writes. A new enabled MCP connector must already have its
+recipe-installed server registered under its plugin ID; sync only reconciles that server's
+boolean `enabled` flag. Catalog setup recipes still perform installation and authorization.
+
+Do not describe a manifest security field as OS/API enforcement. Document outbound services,
+shared credential effects, and whether disabling removes a tool surface or only changes agent
+policy; use [PRIVACY.md](PRIVACY.md) as the baseline contract.

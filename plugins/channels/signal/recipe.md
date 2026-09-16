@@ -90,4 +90,5 @@ in [`config/SOUL.md`](../../../config/SOUL.md).
 ## Status
 - ✅ Tooling, registration, daemon, and gateway — **live**; the agent responds on Signal.
 - ✅ Model `claude-sonnet-5`; web search on (keyless DuckDuckGo); clean text-only replies.
-- ⬜ Next: integrations (calendar / email / tasks via MCP), proactivity, persistent memory.
+- Integrations, scheduled routines, and memory instructions are present in the reference setup.
+- Fresh second-user registration/delivery acceptance remains pending: [trial](../../../docs/ONBOARDING-TRIAL.md).

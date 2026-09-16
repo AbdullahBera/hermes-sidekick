@@ -6,7 +6,14 @@ AI onboarder generates it from a conversation; Hermes and the automations read i
 - **Lives in the user's VM** at `~/.hermes/sidekick/profile.yaml` — never in this repo.
 - **Contains no secrets.** Credentials stay in their own stores (`~/.hermes/.env`, the
   connector credential dirs). The profile records *choices and settings* only.
-- **To change something:** toggle it here and re-run that plugin's recipe.
+- **To change something:** toggle it here, run sync --check, then --apply. Complete the setup recipe before enabling an uninstalled connector. See [disabling guarantees](PRIVACY.md).
+
+All capabilities in the example start **disabled**. Sync refuses a missing or invalid profile;
+it never copies example choices over live state. Bootstrap creates the initial profile only
+when absent. Maps `core`, `channels`, `connectors`, and `automations` are required; plugin
+blocks require a real boolean `enabled`. Times use `HH:MM`, and timezone uses an IANA name.
+Hyphen/underscore plugin keys are accepted, but duplicate aliases and unknown IDs are errors.
+Required connectors must be enabled before their dependents.
 
 The **canonical schema is [`../profile.example.yaml`](../profile.example.yaml)** — copy it
 and fill it in. This doc explains what each section *means*; the example is the shape.
@@ -18,7 +25,7 @@ and fill it in. This doc explains what each section *means*; the example is the 
 
 - **`core`** — global settings every automation honors.
   - `model` — which Claude model runs (`claude-sonnet-5` | `claude-opus-4-8` | `claude-haiku-4-5`).
-  - `timezone` — IANA tz; all "today"/"local time" logic uses it.
+  - `timezone` — IANA tz; sync writes it to Hermes config so schedules and date logic agree. A conflicting `HERMES_TIMEZONE` override blocks sync.
   - `quiet_hours` — `"HH:MM-HH:MM"` local window in which **no** proactive message is sent.
   - `rate_limit_per_day` — a **soft** daily ceiling on proactive messages. It's a judgment
     guide, not a hard counter (there's no enforced tally) — the assistant errs toward
@@ -38,8 +45,9 @@ and fill it in. This doc explains what each section *means*; the example is the 
     `gmail.modify` scope; label writes are confined to these labels by a hard rule.
   - `calendar` — `default_calendar`. Create/edit is granted but always ask-first.
   - `contacts` — read-only; also populates Google's "Birthdays" calendar.
-  - `location` — planned (free OpenRouteService key); `units`, `home_address` for
-    "how far" / "leave by" calculations.
+  - `location` — keyless geocoding/routing; `units`, `home` coordinates, travel mode and arrival buffer.
+  - `notes`, `tasks` — local paths used for capture/recall and checkbox tasks.
+  - `research`, `read_url`, `places`, `weather`, `translate`, `web_actions` — opt-in lookup, translation and browser behaviors; settings are in the example.
 
 - **`automations`** — what the assistant does proactively. Each has `enabled` and its own
   settings (e.g. morning-brief `time` + `include` + a `weather` block with
@@ -57,4 +65,5 @@ and fill it in. This doc explains what each section *means*; the example is the 
   its `prompt.md`), then honors `core.*` (timezone, quiet_hours) plus its own
   `automations.<id>` block and any `connectors.*` settings it needs. Missing keys fall back
   to the plugin's declared defaults.
-- **Channels / connectors** — their `enabled` flags mirror what was wired into Hermes.
+- **MCP connectors** — sync reconciles `enabled` for the separate `gmail`, `calendar`, and `contacts` server registrations and reloads the gateway. Open CLI sessions need restarting.
+- **Channels / shell connectors** — transport setup still uses recipes; shell/model capability flags are agent policy, not credential revocation. See [PRIVACY.md](PRIVACY.md).

@@ -1,0 +1,2 @@
+# Same YAML parser used by the Hermes runtime; tests use Python's standard unittest.
+PyYAML>=6.0,<7

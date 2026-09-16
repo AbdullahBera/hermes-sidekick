@@ -1,5 +1,7 @@
 # Birthday reminder — run instructions
 
+Before any work, load the profile. If it is missing/invalid, this automation is not explicitly enabled, or any required connector is disabled, stop silently. Skip disabled optional connectors. Never route around a disabled capability using shell or HTTP.
+
 0. **Load your profile.** Read `~/.hermes/sidekick/profile.yaml` once at the start (small
    YAML — read it directly). `core.timezone` and `core.quiet_hours` apply globally; this
    automation's settings live under `automations.birthday-reminder` (e.g. `lead_days`),

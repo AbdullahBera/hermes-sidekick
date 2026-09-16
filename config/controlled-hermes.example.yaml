@@ -1,0 +1,17 @@
+# Merge into a FRESH Hermes config under the dedicated, unprivileged agent OS account.
+# Do not replace or deploy over the current development profile. See docs/CONTROL.md.
+# Model/API and Signal registration remain in that account's own VM configuration.
+platform_toolsets:
+  signal: [mcp-sidekick]
+  cli: [mcp-sidekick]
+# The adapter exposes proposals/status only. No approval, resume or credential-import tool.
+mcp_servers:
+  sidekick:
+    enabled: true
+    command: /opt/hermes-sidekick-control/adapter-venv/bin/python
+    args: [-m, sidekick_control.mcp_server]
+    env:
+      PYTHONPATH: /opt/hermes-sidekick-control
+      SIDEKICK_AGENT_SOCKET: /run/sidekick-control/agent.sock
+# Do not register the raw Google MCPs or browser/terminal tools for this restricted path.
+# Owner approval uses /run/sidekick-control/owner.sock, protected by OS permissions.

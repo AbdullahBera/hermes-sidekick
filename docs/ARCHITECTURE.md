@@ -67,6 +67,9 @@ The goal is simple: make a self-hosted Hermes assistant usable by someone who ca
 
 ## Plugin model
 
+Runtime boundaries and what disabling guarantees are documented in [PRIVACY.md](PRIVACY.md).
+Host mounts can expose Mac files; ask-first policies are not OS/API enforcement.
+
 Everything a user might want is a plugin in one of three categories, plus base config:
 
 - **Channels** — *how they reach it.* Signal, iMessage, Telegram, WhatsApp, Web. Pick ≥1.

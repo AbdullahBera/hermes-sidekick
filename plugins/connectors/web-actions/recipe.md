@@ -6,8 +6,9 @@ frontier capability, done privately. The engine is Hermes's built-in `browser` t
 (Playwright/Chromium via `agent-browser`).
 
 ## Security posture (the product, not just the tool)
-The raw ability to click around the web is only useful if it's *safe*. The hard rules
-(in [`../../../config/SOUL.md`](../../../config/SOUL.md), always injected) are:
+The raw Hermes browser follows the instructions in
+[`../../../config/SOUL.md`](../../../config/SOUL.md). These are behavioral policies,
+not an enforced approval boundary:
 - **Stop before money or your name.** It builds a task to the final screen (cart, form, check-in)
   and **stops** before checkout / order / send / booking-confirm — shows the total + what's in it
   + where it's going, and waits for an explicit "yes".
@@ -16,7 +17,8 @@ The raw ability to click around the web is only useful if it's *safe*. The hard 
 - **Sensitive data never enters the thread or a form it fills** — passwords, full card numbers,
   passport/ID, 2FA codes. You provide those directly.
 - **Cite what it found** (source link); only does the task asked.
-- **Private by construction:** the browser runs in *your* VM. (A cloud option, Browserbase,
+- **Local browser execution:** the browser runs in *your* VM. Host mounts and account
+  permissions determine its actual access. (A cloud option, Browserbase,
   exists in Hermes but needs an API key and sends pages to a third party — off by default here.)
 
 ## Setup
@@ -30,8 +32,8 @@ hermes tools list | grep browser             # confirm: ✓ enabled  browser
 **Gotcha (found on arm64 Linux):** `hermes tools post-setup agent_browser` may report
 "already installed" while `agent-browser` is in fact missing from PATH. If the browser tool says
 "Chrome isn't installed," run `npm install -g agent-browser` explicitly and restart the gateway
-(`sudo systemctl restart hermes-gateway`). Chromium itself runs fine on arm64 (it just needs
-`--no-sandbox`, which Hermes auto-injects in the VM).
+(`sudo systemctl restart hermes-gateway`). Check the browser's actual sandbox configuration;
+the controlled adapter below keeps Chromium's sandbox enabled on arm64 Linux.
 
 ## Verify
 - "Open example.com and read me the heading" → returns the page's H1.
@@ -42,16 +44,20 @@ hermes tools list | grep browser             # confirm: ✓ enabled  browser
 `connectors.web_actions` (profile): `allowed_domains` (optional allowlist),
 `always_confirm_before_submit` (keep `true`).
 
-## Performance (important, honest)
-The browser **launches and drives Chromium** — verified. But in a **GPU-less VM** (like the
-reference OrbStack VM), Chromium falls back to **software rendering** (`swiftshader`) and is
-**impractically slow** — a trivial page took many minutes in testing. So web actions is *wired
-and functional* but needs a faster environment to be usable day-to-day:
-- Run on a host with real GPU/graphics (a Mac directly, or an x86 box), where it's fast, **or**
-- try the lighter engine (`browser.engine: lightpanda` in `config.yaml` / `AGENT_BROWSER_ENGINE=lightpanda`)
-  which skips screenshots and navigates much faster (good for fill/extract tasks).
-- Cleanup tip: if a run hangs, kill stray processes with `pkill -9 chrome` (leaves the wrapper's
-  idle sessions to time out on their own).
+## Controlled workflow and performance
+
+The opt-in [control service](../../../docs/CONTROL.md) adds durable inspection/preparation tasks,
+exact owner approval, one-attempt submission transport, and pause/disconnect. It supports ordinary
+server-rendered POST forms with page JavaScript disabled. Use its restricted MCP configuration
+under a separate agent OS identity; do not expose raw browser/shell tools in that deployment.
+A chat "yes" does not grant this service owner authority.
+
+Earlier raw-tool runs were slow, but did not establish the cause or a GPU requirement. The new
+local appointment fixture runs inspection and submission below a second each on the reference
+Linux VM, with Chromium sandboxing enabled. That measures the bounded browser path, not model
+reasoning, real-site latency or general task success. Run the tests in CONTROL.md and benchmark
+the intended sites before making performance promises. Use the service's task cancellation or
+pause control to terminate its browser process group.
 
 ## Notes
 - Real-time watching (sit on a page, alert on change) pairs with this — a backlog item.

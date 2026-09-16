@@ -18,7 +18,8 @@ the VM. (Composio and other managed brokers were evaluated and rejected for priv
   is ask-first.
 - **No send, ever:** no send tool is exposed. Note the honest caveat: the `gmail.compose`
   *scope* can technically send — the guarantee is **tool non-exposure + the ask-first rule,
-  not the scope**. There is no code path from the agent to a sent email.
+  not the scope**. General shell access and readable credentials remain a residual path to the API;
+  this is not enforced revocation or an API-level no-send guarantee. See [PRIVACY.md](../../../docs/PRIVACY.md).
 - **Ask-first hard rule (policy, not scope):** because `gmail.modify` also permits archive/
   trash/mark-read, the protection is behavioral. Unprompted, the agent may only ADD your own
   triage labels to messages (mail stays in the inbox) and write DRAFTS (shown to you, never

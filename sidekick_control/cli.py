@@ -28,10 +28,19 @@ def main():
     resolve.add_argument('--note', required=True, help='evidence checked at the destination before resolving ambiguity')
     events = sub.add_parser('events')
     events.add_argument('--after', type=int, default=0)
+    link = sub.add_parser('owner-link', help='print the private owner link in your trusted terminal, never in chat')
+    link.add_argument('--token-file', type=Path, default=Path('/var/lib/sidekick-owner/access-token'))
+    link.add_argument('--port', type=int, default=8765)
     args = parser.parse_args()
     method = args.command.replace('-', '_')
     params = {k: getattr(args,k) for k in ('id','digest','after') if hasattr(args,k)}
     try:
+        if method == 'owner_link':
+            from .owner_web import access_token
+            if not args.token_file.exists():
+                raise ControlError('start the owner web service first')
+            print(f'http://127.0.0.1:{args.port}/#{access_token(args.token_file)}')
+            return 0
         if method == 'connect_browser':
             params = {'origins': args.origin}
             if args.storage_file:

@@ -13,11 +13,13 @@ import threading
 import time
 
 from .store import ControlError, Store, canonical
-from .validation import origins, prepare
+from .validation import origins, prepare, allowed_url
+from .handoff import Handoff
 
 
 AGENT_METHODS = {'status','tasks','task','propose','cancel','retry_read','memories','events'}
-OWNER_METHODS = AGENT_METHODS | {'approve','pause','resume','connect_browser','disconnect_browser','forget','resolve'}
+LOGIN_METHODS = {'start_login','login_status','login_view','login_input','finish_login','cancel_login'}
+OWNER_METHODS = AGENT_METHODS | LOGIN_METHODS | {'approve','pause','resume','connect_browser','disconnect_browser','forget','resolve'}
 
 
 class Runtime:
@@ -31,6 +33,7 @@ class Runtime:
         self.active_task = None
         self.worker = None
         self.failed = threading.Event()
+        self.handoff = Handoff(allow_loopback)
 
     def dispatch(self, role, request):
         if not isinstance(request, dict) or set(request) - {'method','params'}:
@@ -41,6 +44,8 @@ class Runtime:
             raise ControlError('owner authority required or unknown method')
         if not isinstance(params, dict):
             raise ControlError('params must be an object')
+        if method in LOGIN_METHODS:
+            return self.login(method, params)
         # Serialized with dispatch/termination so pause cannot race a new browser spawn.
         with self.guard:
             if method == 'status':
@@ -56,9 +61,12 @@ class Runtime:
             if method == 'approve':
                 return self.store.approve(params['id'], params['digest'])
             if method in ('pause','resume'):
+                if method == 'resume' and self.handoff.active():
+                    raise ControlError('finish or cancel the private login before resuming tasks')
                 result = self.store.set_paused(method == 'pause')
                 if method == 'pause':
                     self.kill_browser()
+                    self.handoff.close()
                 return result
             if method == 'cancel':
                 result = self.store.cancel(params['id'])
@@ -75,6 +83,7 @@ class Runtime:
                     raise ControlError('invalid Playwright browser storage state')
                 result = self.store.configure_browser(enabled, allowed, storage)
                 self.kill_browser()
+                self.handoff.close()
                 return result
             if method == 'memories':
                 return self.store.memories()
@@ -87,6 +96,56 @@ class Runtime:
                     raise ControlError('completed must be boolean')
                 return self.store.resolve(params['id'], params['completed'], params['note'])
         raise ControlError('unknown method')
+
+    def login(self, method, params):
+        with self.guard:
+            if method == 'login_status':
+                active = self.handoff.active()
+                return {'active': active, 'session_id': self.handoff.session_id,
+                        'origins': self.handoff.origins if active else []}
+            if method == 'start_login':
+                connected = origins(params['origins'], self.allow_loopback)
+                additional = origins(params['login_origins'], self.allow_loopback) if params.get('login_origins') else []
+                url = allowed_url(params['url'], connected)
+                if self.handoff.active():
+                    raise ControlError('finish or cancel the current login first')
+                self.store.set_paused(True)
+                self.kill_browser()
+                session_id = self.handoff.begin(connected)
+                op, values = 'start', dict(origins=connected, login_origins=additional, url=url,
+                                          allowLoopback=self.allow_loopback)
+            else:
+                session_id = params['session_id']
+                if not self.handoff.active() or session_id != self.handoff.session_id:
+                    raise ControlError('login session expired or changed; start again')
+                if method == 'cancel_login':
+                    self.handoff.close()
+                    return {'cancelled': True, 'paused': True}
+                if method == 'finish_login':
+                    if params.get('confirmed') is not True:
+                        raise ControlError('confirm the signed-in account before connecting it')
+                    op, values = 'finish', {}
+                elif method == 'login_input':
+                    op, values = 'input', {'event': params['event']}
+                else:
+                    op, values = 'view', {}
+        # Owner pause/cancel can kill the handoff while navigation is waiting.
+        try:
+            result = self.handoff.command(session_id, op, **values)
+        except Exception:
+            if method == 'start_login':
+                with self.guard:
+                    if self.handoff.session_id == session_id:
+                        self.handoff.close()
+            raise
+        with self.guard:
+            if not self.handoff.active() or session_id != self.handoff.session_id:
+                raise ControlError('login was cancelled or expired')
+            if method == 'finish_login':
+                self.store.configure_browser(True, self.handoff.origins, result['storage'])
+                self.handoff.close()
+                return {'connected': True, 'paused': True}
+            return dict(result, session_id=session_id)
 
     def kill_browser(self):
         if self.process is not None and self.process.poll() is None:
@@ -132,6 +191,7 @@ class Runtime:
         with self.guard:
             if self.stop.is_set():
                 return False
+            self.handoff.active()  # expire human sessions even while execution is paused
             task = self.store.claim()
             if task is None:
                 return False
@@ -174,6 +234,7 @@ class Runtime:
         with self.guard:
             self.stop.set()
             self.kill_browser()
+            self.handoff.close()
         if self.worker:
             self.worker.join(timeout=5)
 

@@ -1,8 +1,7 @@
 // One bounded browser task per process. No model-supplied JavaScript or shell commands.
 import { chromium } from 'playwright';
 import { createHash } from 'node:crypto';
-import { lookup } from 'node:dns/promises';
-import { isIP } from 'node:net';
+import { networkPolicy } from './network.mjs';
 import { request as httpRequest } from 'node:http';
 import { request as httpsRequest } from 'node:https';
 
@@ -51,14 +50,6 @@ function stable(value) {
   return JSON.stringify(value);
 }
 const hash = value => createHash('sha256').update(stable(value)).digest('hex');
-function publicIPv4(address) {
-  if (isIP(address) !== 4) return false;
-  const [a,b] = address.split('.').map(Number);
-  return !(a === 0 || a === 10 || a === 127 || a >= 224 || (a === 169 && b === 254) ||
-    (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) ||
-    (a === 100 && b >= 64 && b <= 127) || (a === 198 && (b === 18 || b === 19)) ||
-    (a === 192 && (b === 0 || b === 2)) || (a === 198 && b === 51) || (a === 203 && b === 0));
-}
 
 let input = '';
 for await (const chunk of process.stdin) {
@@ -71,22 +62,7 @@ let sent = false;
 let networkBlocked = false;
 const started = performance.now();
 try {
-  const origins = new Set(request.origins);
-  const mappings = [];
-  const pinned = new Map();
-  for (const origin of origins) {
-    const url = new URL(origin);
-    const records = await lookup(url.hostname, { all: true, family: 4 });
-    if (!records.length || records.some(r => !publicIPv4(r.address) && !(request.allowLoopback && url.hostname === '127.0.0.1' && r.address === '127.0.0.1'))) {
-      throw new Error('private_address_blocked');
-    }
-    mappings.push(`MAP ${url.hostname} ${records[0].address}`);
-    pinned.set(url.hostname, records[0].address);
-  }
-  const allowed = raw => {
-    try { const u = new URL(raw); return origins.has(u.origin) && !u.username && !u.password; }
-    catch { return false; }
-  };
+  const {mappings, pinned, allowed} = await networkPolicy(request.origins, request.allowLoopback);
   if (!allowed(request.action.url)) throw new Error('origin_not_allowed');
   browser = await chromium.launch({ headless: true, chromiumSandbox: true,
     args: ['--disable-dev-shm-usage', '--no-proxy-server', `--host-resolver-rules=${mappings.join(',')}`],

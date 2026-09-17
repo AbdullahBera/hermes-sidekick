@@ -109,5 +109,5 @@ approvals, bounded browser form submissions, pause/disconnect, and approved-memo
 It is opt-in and requires separate agent/service OS identities for enforcement. Local appointment
 fixtures verify restart recovery, lost responses and duplicate prevention; general websites and
 a second user's real accounts still need acceptance testing. Live scheduled runs remain paused
-during development. The owner CLI is the current approval interface; a conversational approval
-surface and interactive login handoff are still pending.
+during development. The private owner interface supports action review and human login handoff over an SSH tunnel.
+Authenticated chat approvals and real-provider login acceptance are still pending.

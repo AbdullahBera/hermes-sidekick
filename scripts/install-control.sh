@@ -37,7 +37,7 @@ fi
 if awk ' / - (virtiofs|9p|vboxsf|fuse.vmhgfs-fuse|fuse.orbstack) / {found=1} END {exit !found}' /proc/self/mountinfo; then
   echo 'Host filesystem sharing detected; use a VM without host shares for the isolated deployment' >&2; exit 1
 fi
-for location in /etc/systemd/system /opt /opt/hermes-sidekick-control /etc/systemd/system/sidekick-control.service /var/lib/sidekick-control /var/cache/sidekick-control; do
+for location in /etc/systemd/system /opt /opt/hermes-sidekick-control /etc/systemd/system/sidekick-control.service /etc/systemd/system/sidekick-owner.service /var/lib/sidekick-control /var/lib/sidekick-owner /var/cache/sidekick-control; do
   if [ -L "$location" ]; then
     echo 'Refusing a symlink at a control installation path' >&2; exit 1
   fi
@@ -59,8 +59,8 @@ for directory, dirs, files in os.walk('/opt/hermes-sidekick-control', followlink
             sys.exit('Agent can change existing control code or an interpreter; repair ownership first')
 PY
 fi
-if systemctl is-active --quiet sidekick-control; then
-  echo 'Stop the existing control service before upgrading its code' >&2; exit 1
+if systemctl is-active --quiet sidekick-control || systemctl is-active --quiet sidekick-owner; then
+  echo 'Stop the existing control and owner services before upgrading their code' >&2; exit 1
 fi
 AGENT_GROUP="$(id -gn "$AGENT_USER")"
 [[ "$AGENT_GROUP" =~ ^[a-z_][a-z0-9_-]*$ ]] || { echo 'Unsupported agent group name' >&2; exit 1; }
@@ -76,6 +76,8 @@ install -d -m 0755 -o root -g root "$PREFIX" "$PREFIX/sidekick_control"
 install -m 0644 -o root -g root "$ROOT"/sidekick_control/*.py "$ROOT"/sidekick_control/*.mjs \
   "$ROOT"/sidekick_control/package*.json "$PREFIX/sidekick_control/"
 install -m 0644 -o root -g root "$ROOT/requirements-control.txt" "$PREFIX/requirements-control.txt"
+install -d -m 0755 -o root -g root "$PREFIX/sidekick_control/static"
+install -m 0644 -o root -g root "$ROOT"/sidekick_control/static/* "$PREFIX/sidekick_control/static/"
 npm --prefix "$PREFIX/sidekick_control" ci --ignore-scripts
 python3 -m venv "$PREFIX/adapter-venv"
 "$PREFIX/adapter-venv/bin/python" -m pip install -r "$PREFIX/requirements-control.txt"
@@ -123,12 +125,42 @@ RestartSec=2
 WantedBy=multi-user.target
 UNIT
 chmod 0644 /etc/systemd/system/sidekick-control.service
+cat > /etc/systemd/system/sidekick-owner.service <<UNIT
+[Unit]
+Description=Sidekick private owner controls
+Requires=sidekick-control.service
+After=sidekick-control.service
+[Service]
+Type=simple
+User=sidekick-control
+Group=$AGENT_GROUP
+WorkingDirectory=$PREFIX
+ExecStart=$PYTHON_BIN -m sidekick_control.owner_web
+Environment=PYTHONDONTWRITEBYTECODE=1
+UMask=0077
+StateDirectory=sidekick-owner
+StateDirectoryMode=0700
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+NoNewPrivileges=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+KillMode=control-group
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=2
+[Install]
+WantedBy=multi-user.target
+UNIT
+chmod 0644 /etc/systemd/system/sidekick-owner.service
 systemctl daemon-reload
-systemctl enable sidekick-control.service
+systemctl enable sidekick-control.service sidekick-owner.service
 cat <<'DONE'
 Installed, not started. Follow docs/CONTROL.md to:
   1. Start the service and confirm it is paused.
-  2. Connect exact browser origins through the owner socket.
+  2. Start private owner controls, tunnel through SSH, and connect exact browser origins.
   3. Register only the restricted Sidekick MCP adapter with the dedicated Hermes account.
   4. Run the fixture acceptance checks before approving any real account action.
 Keep the previous development schedules paused; this installer never resumes them.

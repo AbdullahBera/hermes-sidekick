@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Sidekick · Your controls</title>
+    <link rel="stylesheet" href="/owner.css" />
+    <script src="/owner.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="/">sidekick<span>your controls</span></a>
+      <div class="toolbar">
+        <span id="run-state" class="pill">Locked</span
+        ><button id="pause" class="danger" disabled>Pause everything</button>
+      </div>
+    </header>
+    <main>
+      <section id="unlock" class="card narrow">
+        <p class="eyebrow">PRIVATE ACCESS</p>
+        <h1>Your assistant. Your say.</h1>
+        <p>
+          Open the private access link from your VM, or paste its access key
+          here. Keep it out of chat.
+        </p>
+        <label for="access-key">Owner access key</label
+        ><input id="access-key" type="password" autocomplete="off" /><button
+          id="unlock-button"
+          class="primary"
+        >
+          Open controls
+        </button>
+      </section>
+      <div id="workspace" hidden>
+        <section class="intro">
+          <div>
+            <p class="eyebrow">YOU'RE IN CONTROL</p>
+            <h1>A clear view of what happens next.</h1>
+            <p>
+              Review exact actions, connect your browser, and manage what
+              Sidekick remembers.
+            </p>
+          </div>
+          <button id="refresh">Refresh</button>
+        </section>
+        <nav aria-label="Control sections">
+          <button data-panel="tasks" class="active">
+            Actions <span id="pending-count"></span></button
+          ><button data-panel="browser">Browser connection</button
+          ><button data-panel="memory">Memory</button>
+        </nav>
+        <section id="tasks-panel" class="panel">
+          <div class="section-heading">
+            <h2>Actions &amp; approvals</h2>
+            <button id="resume">Resume approved work</button>
+          </div>
+          <p class="muted">
+            Approvals cover the exact action shown. A changed page needs a new
+            review.
+          </p>
+          <div id="task-list"></div>
+          <article id="review" class="card" hidden></article>
+        </section>
+        <section id="browser-panel" class="panel" hidden>
+          <h2>Connect a browser session</h2>
+          <p>
+            You sign in directly. Sidekick receives a session for the sites you
+            choose, never your password or login screen.
+          </p>
+          <div class="card">
+            <div id="connection-state"></div>
+            <label for="origins"
+              >Sites Sidekick may use · one HTTPS origin per line</label
+            ><textarea
+              id="origins"
+              rows="2"
+              placeholder="https://appointments.example.com"
+              spellcheck="false"
+            ></textarea
+            ><label for="login-origins"
+              >Additional login / identity-provider origins · optional, never
+              granted to Sidekick</label
+            ><textarea
+              id="login-origins"
+              rows="2"
+              placeholder="https://accounts.example.com"
+              spellcheck="false"
+            ></textarea
+            ><label for="login-url">Sign-in page on an allowed site</label
+            ><input
+              id="login-url"
+              type="url"
+              placeholder="https://appointments.example.com/login"
+            />
+            <div class="actions">
+              <button id="start-login" class="primary">
+                Open private sign-in</button
+              ><button id="disconnect" class="danger">
+                Disconnect browser
+              </button>
+            </div>
+            <p class="fine">
+              Tasks pause during sign-in. Only the listed sites can load,
+              including scripts and redirects. Add required login origins before
+              starting. This session expires after 15 minutes.
+            </p>
+          </div>
+          <div id="handoff" class="card" hidden>
+            <p class="eyebrow">PRIVATE SIGN-IN · YOU ARE DRIVING</p>
+            <p id="login-location" class="mono"></p>
+            <p id="login-blocked" class="notice" hidden>
+              A site outside your allowed origins was blocked. Cancel and add
+              its origin only if you trust it.
+            </p>
+            <img
+              id="login-screen"
+              alt="Your private browser session. Click a field, then enter text below."
+              draggable="false"
+            /><label for="login-text"
+              >Text to enter into the selected browser field</label
+            ><input
+              id="login-text"
+              type="password"
+              autocomplete="off"
+              placeholder="Entered directly into your browser"
+            />
+            <div class="actions">
+              <button id="type-text">Enter text</button
+              ><button data-key="Tab">Tab</button
+              ><button data-key="Enter">Enter</button
+              ><button data-key="Backspace">Backspace</button
+              ><button data-key="Control+A">Select all</button
+              ><button data-scroll="-600">Scroll up</button
+              ><button data-scroll="600">Scroll down</button
+              ><button id="refresh-login">Refresh view</button>
+            </div>
+            <p>
+              Check that the browser shows the correct signed-in account before
+              connecting. Buttons inside the browser act immediately because you
+              are operating it yourself.
+            </p>
+            <div class="actions">
+              <button id="finish-login" class="primary">
+                Use this signed-in session</button
+              ><button id="cancel-login">Cancel sign-in</button>
+            </div>
+            <p class="fine">
+              Saving a session keeps work paused. Review pending actions before
+              resuming.
+            </p>
+          </div>
+        </section>
+        <section id="memory-panel" class="panel" hidden>
+          <h2>What Sidekick remembers</h2>
+          <p>
+            These are the memories you approved in the control service.
+            Forgetting removes them here and from their proposal. Older chats,
+            native Hermes memory, and backups are separate.
+          </p>
+          <div id="memory-list"></div>
+        </section>
+      </div>
+      <p id="feedback" role="status" aria-live="polite"></p>
+    </main>
+    <footer>
+      Private owner controls · Pause applies to this control service. Existing
+      Hermes tools and schedules are separate.
+    </footer>
+  </body>
+</html>

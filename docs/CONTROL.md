@@ -40,7 +40,7 @@ approval firewall for the existing same-user development VM.
 The initial adapter supports server-rendered pages and ordinary POST forms with text, email,
 telephone, URL, date/time, numeric, textarea and single-select fields. It deliberately disables
 page JavaScript and blocks scripts, images, fonts and media; a website script cannot secretly
-submit while the agent is inspecting or entering fields. Login/password forms, file uploads,
+submit while the agent is inspecting or entering fields. Automated login/password forms, file uploads,
 duplicate field names, pages exceeding the bounded review, script-driven applications and
 unsupported controls require human handoff.
 Payment/identity workflows are outside this initial supported set. Field-name checks are not
@@ -71,7 +71,7 @@ The owner and agent use **different Unix sockets**. Owner methods are absent fro
 API even if the request includes a forged role. The owner socket is mode 0600; the agent socket
 is 0660 under the agent group, in a directory the agent cannot modify. The database and browser
 storage belong to the control service account, with directory mode 0700. Owner-supplied
-Playwright storage state never appears in agent responses. Disconnect clears the broker's copy,
+Playwright storage state is never returned directly by the agent API. Disconnect clears the broker's copy,
 invalidates pending actions and stops the active browser; it is not provider-side revocation.
 Revoke sessions at the provider too when necessary. Keep export files/backups private.
 
@@ -147,9 +147,9 @@ sudo -u sidekick-control python3 -m sidekick_control.cli forget MEMORY_ID
 All commands run from `/opt/hermes-sidekick-control` on the VM. Stop the service before updating
 its code or taking a consistent private backup of `/var/lib/sidekick-control`. On restore, start
 paused for review; interrupted external tasks remain uncertain. Do not run two service instances
-against one store. The service takes an exclusive process lock. The owner CLI is the approval
-surface in this version; a verified messaging or web approval surface is future work. A plain
-chat “yes” is never treated as an authenticated owner approval.
+against one store. The service takes an exclusive process lock. The owner CLI and private web interface are approval
+surfaces; authenticated messaging approvals remain future work. A plain chat “yes” is never
+treated as an authenticated owner approval.
 
 `status` includes worker health. A fatal queue/database error exits the service so systemd
 can restart it and recover interrupted work, instead of leaving a silently dead worker behind.
@@ -170,3 +170,76 @@ Read event updates after the last seen cursor and combine related changes into o
 update. Do not poll in a tight loop. Unsolicited scheduled follow-ups remain disabled during
 development; this release provides durable updates to retrieve in conversation, not a new
 background message sender.
+
+## Private owner interface and login handoff
+
+The owner interface adds readable action review, exact approve/cancel buttons, pause/resume,
+browser disconnect, and approved-memory inspection/deletion. It is served by the same isolated
+service identity and binds **only to `127.0.0.1`**. It is not part of the public landing page.
+A random owner access key lives in a private VM directory, rotates when the owner web service
+restarts, and is never logged or returned through the agent API. Requests require that key,
+the expected Host and Origin, and JSON content. Page-derived text is rendered as text, not HTML.
+
+No deployment is necessary to run the fictional fixtures. For a future isolated VM deployment,
+install the updated services, start `sidekick-owner`, and forward its loopback port from the
+owner's laptop. These are operator steps, not commands to give the assistant agent:
+
+```bash
+# On the isolated VM, after install-control.sh and Chromium sandbox prerequisites:
+sudo systemctl start sidekick-owner
+cd /opt/hermes-sidekick-control
+sudo -u sidekick-control python3 -m sidekick_control.cli owner-link
+# On your laptop, use the same local port and keep the SSH tunnel open:
+ssh -N -L 127.0.0.1:8765:127.0.0.1:8765 owner@your-vm
+```
+
+Open the private link from the trusted terminal on your laptop. Do not paste the link or its
+key into chat, issue trackers, screenshots, or shared logs. The key is carried in a URL fragment
+and removed from the address bar immediately; it is not sent in HTTP URLs or persisted in
+browser storage. A full page reload needs the link again. Do not expose this HTTP service on a
+public port or put an unauthenticated proxy in front of it. No hosted service is created by these
+code changes; the deployment destination can be chosen later. Stop **both** owner and control
+services before upgrading.
+
+To connect an account:
+
+1. In **Browser connection**, list the exact HTTPS origins Sidekick may use and the sign-in
+   page on one of them. List additional identity-provider or asset origins separately if the
+   login requires them. All browser network access is restricted to this explicit set.
+2. Open **private sign-in**. Controlled tasks pause and any active task browser is stopped.
+   You see a live screenshot of a separate browser in the VM. Click a field, enter text through
+   the private controls, and use the keyboard/scroll buttons. Inputs and screenshots are never
+   exposed through the agent socket, stored in tasks, or recorded in application logs.
+3. This browser is **human-operated**: JavaScript and submissions are enabled, and your clicks
+   can act immediately. Use it only to sign in. It is not an agent-controlled approval bypass.
+   Downloads, service workers and WebSockets are blocked. Password/OTP entry is supported;
+   passkeys requiring a local physical device, some CAPTCHA flows and some provider security
+   policies may need a different handoff. Automated work still supports only the bounded,
+   JavaScript-disabled form workflow described above.
+4. Verify the signed-in account, then choose **Use this signed-in session**. Only cookies and
+   local storage relevant to the task origins are retained; additional login origins are not
+   granted to the assistant. Their unrelated cookies are discarded. Passwords are not exported.
+   Connecting a new session invalidates pending browser tasks and approvals. Work stays paused.
+5. Resume only when ready. Cancelling or pausing destroys the handoff; abandoned handoffs expire
+   after 15 minutes. Broker restarts destroy handoffs through the systemd process group. An
+   existing saved connection is retained if a replacement login is cancelled; disconnect it
+   explicitly to remove it. Disconnect is local removal, not provider-side revocation.
+
+Account session data still belongs to the VM and may enter its private backups. A site could
+itself store sensitive information in a cookie/local-storage entry; granting its origin grants
+access to the corresponding session. The guarantee is that the handoff does not expose raw
+credentials through agent tools, not that all third-party websites handle credentials safely.
+
+For local development, start a `--dev` broker with private temporary state/socket paths, then:
+
+```bash
+python3 -m sidekick_control.owner_web --socket /tmp/sidekick-demo-sockets/owner.sock \
+  --token-file /tmp/sidekick-demo-owner/access-token
+python3 -m sidekick_control.cli owner-link --token-file /tmp/sidekick-demo-owner/access-token
+```
+
+Use fictional accounts only in this same-user setup. The fixture suite exercises the actual
+owner UI, private sign-in, session transfer, a subsequent authenticated inspection, and removal
+on disconnect. It also checks rejected agent login calls, wrong tokens/origins/hosts, expired
+handoffs, and cancellation during session completion. These tests are not a fresh-VM deployment
+or real-provider compatibility trial.

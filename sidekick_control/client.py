@@ -7,7 +7,7 @@ from .store import ControlError, canonical
 def call(path, method, **params):
     try:
         with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as connection:
-            connection.settimeout(10)
+            connection.settimeout(30)  # owner login navigation has a bounded 25-second wait
             connection.connect(str(path))
             connection.sendall((canonical({'method': method, 'params': params}) + '\n').encode())
             with connection.makefile('rb') as stream:

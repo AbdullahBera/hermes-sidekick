@@ -77,8 +77,11 @@ restart recovery that holds uncertain submissions, pause/cancel/disconnect, appr
 and a bounded browser inspection/form path. Local fixture tests exercise a complete appointment
 submission and restart/replay behavior. It requires a separate unprivileged agent identity for
 real enforcement; the existing development VM is not automatically migrated. Owner approvals
-currently use a private CLI. General script-heavy websites, secure interactive login handoff,
-verified chat approvals and autonomous proactive notifications remain follow-up work.
+use a private CLI or loopback web interface. Human login handoff pauses the agent, isolates
+screenshots and credentials from its tools, and saves only the selected sites’ sessions.
+General script-heavy automated tasks, real-provider login acceptance, verified chat approvals
+and autonomous proactive notifications remain follow-up work. Live deployment is deferred
+until a destination is available; no new host has been provisioned.
 
 ## Reliability implementation (acceptance still pending)
 - Sync preflight validates profiles/catalog/jobs before writes; command failures return nonzero.

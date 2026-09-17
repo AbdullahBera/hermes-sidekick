@@ -49,3 +49,9 @@ real Chromium fixture tests. See [CONTROL.md](CONTROL.md) for commands, supporte
 restart/duplicate-action cases, and the OS identity requirements for owner-only approvals.
 The MCP test exercises real stdio tool discovery and requests through the agent socket. It
 requires `requirements-control.txt`; without that optional dependency it is explicitly skipped.
+
+Owner-control checks include the actual web UI and a fictional sign-in site: exact approval,
+private password entry, session transfer, an authenticated read, and disconnect. HTTP tests
+reject invalid tokens, cross-origin requests, untrusted hosts, and credential-import methods.
+Login cancellation/expiry tests verify that interrupted handoffs cannot save a session later.
+Run these with the same `npm --prefix sidekick_control test` and Python discovery commands.

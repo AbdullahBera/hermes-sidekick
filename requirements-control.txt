@@ -1,0 +1,2 @@
+# Install into the separate Hermes-facing adapter venv; the broker uses Python stdlib only.
+mcp>=1.12,<2

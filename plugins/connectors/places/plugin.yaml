@@ -1,0 +1,34 @@
+id: places
+name: Nearby Places
+category: connector
+summary: Find places near you — cafes, pharmacies, shops — keyless via OpenStreetMap. Read-only.
+
+requires:
+  connectors: [location]        # reuses geocoding (Nominatim) + travel time (OSRM)
+  human: []                     # keyless — nothing to sign up for
+
+security:
+  provider: openstreetmap       # Overpass API (nearby search) + Nominatim (geocode the anchor)
+  writes: []                    # read-only lookups; no account actions
+  ask_first: false
+  secrets_location: vm
+
+setup:
+  - human:  "None — keyless; uses your location connector's home as the default anchor"
+  - auto:   "None"
+  - verify: "Ask 'coffee near <place>' — you get a few closest matches (see recipe.md)"
+
+settings:
+  radius_m: 1500                # search radius around the anchor point
+  max_results: 8                # how many nearby matches to consider
+
+hermes:
+  kind: none                    # keyless HTTP capability the prompts curl (Overpass + Nominatim)
+
+notes: >
+  Keyless nearby search via public OpenStreetMap services: it geocodes the anchor you name (or uses
+  connectors.location.home) with Nominatim, then queries the Overpass API for that kind of place
+  within radius_m, and reports the closest few (name + rough distance/street). Read-only — it never
+  books or acts. Pairs with the location connector for "how far / leave by." Privacy: the place you
+  search and the anchor coords go to the public OSM Overpass/Nominatim servers; home coords stay
+  VM-only. Overpass is a shared free service — keep queries small (bounded radius + a tag filter).

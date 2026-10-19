@@ -1,0 +1,33 @@
+id: translate
+name: Translate
+category: connector
+summary: Translate text between languages — done by the model itself, nothing sent to any translation service.
+
+requires:
+  connectors: []
+  human: []                     # nothing to sign up for
+
+security:
+  provider: model               # the model translates directly — no third-party translate API is called
+  writes: []                    # read-only: it just gives you the translation
+  ask_first: false
+  secrets_location: vm
+
+setup:
+  - human:  "None — it's a built-in model capability"
+  - auto:   "None"
+  - verify: "Ask 'translate <phrase> to <language>' — you get a natural translation (see recipe.md)"
+
+settings:
+  default_target: ""            # optional: a language to assume when you don't name one (e.g. English)
+  formality: natural            # natural | formal | casual — tone to aim for when the language marks it
+
+hermes:
+  kind: none                    # pure model capability — no external call, no key, no extra data leaves
+
+notes: >
+  Translation happens ON the model — no Google/DeepL/third-party translate service is called, so no
+  extra data leaves the VM beyond the normal model request. Detects the source language, translates
+  naturally (idioms over word-for-word), and preserves tone/register per connectors.translate.formality.
+  Says which language it detected when it's ambiguous. Complements the existing "write it in Turkish
+  for Turkish names" message rule in SOUL.md — this is general two-way translation for any language.

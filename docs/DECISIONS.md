@@ -141,9 +141,23 @@ Signal). So a fresh `bootstrap.sh` installed everything except the thing that ma
 automations fire. Fixed: bootstrap now runs `hermes gateway install` (provision.sh already did).
 Without it, everything installs cleanly but nothing ever fires.
 
+## Reliability and second-user readiness (2026-09-08)
+
+Sync now validates the full input set before mutation and returns failure for invalid profiles
+or failed commands. The old invalid-profile fallback could pause every automation. Regression
+fixtures cover that failure, subprocess failures, idempotent reconciliation, and reload retry.
+MCP enablement is reconciled for the three separately registered Google connectors; shell-based
+capabilities still use policy. Profile timezone is written to Hermes scheduler configuration.
+
+Host filesystem inspection confirmed the reference VM exposes Mac directories. Prior statements
+that VM execution alone confined access away from the Mac were too broad. The actual boundary,
+residual credential access, and strict host-share detection are documented in PRIVACY.md.
+
+Bootstrap verifies runtime stages and starts new profiles with capabilities disabled. CI and
+read-only health checks are implemented. Fresh second-user Google OAuth, Signal registration,
+and scheduled delivery remain pending the participant trial in ONBOARDING-TRIAL.md.
+
 ## Open / next
-- Optional messaging gateway (Telegram/Slack) via `hermes gateway install`.
-- Crons for background automation.
-- Decide cost ceiling → maybe default to `claude-sonnet-5`.
-- Always-on: currently tied to the Mac being awake + OrbStack running; revisit a
-  dedicated always-on host later if needed.
+- Complete the fresh-account second-user trial and record actual delivery evidence.
+- Choose an always-on host if laptop sleep continues to delay scheduled routines.
+- Further permission enforcement must happen outside the model; prompt rules are not a sandbox.

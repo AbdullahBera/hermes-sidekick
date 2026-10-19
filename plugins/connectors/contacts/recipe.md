@@ -22,3 +22,7 @@ covers only the contacts-specific bits.
    sudo systemctl restart hermes-gateway
    ```
 4. Verify: `list_contacts` returns your contacts.
+
+Google OAuth setup can be shared without enabling Gmail tools. If only this connector is
+chosen, omit Gmail permissions from the example authorization command and do not register a
+Gmail MCP server. Request only the selected connector scopes.

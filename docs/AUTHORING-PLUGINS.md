@@ -59,7 +59,43 @@ Whatever you put under `settings:` becomes this plugin's block in the user's
   `~/.hermes/cron/output/<job-id>/` and check tool errors in `~/.hermes/logs/errors.log`.
 - **Connectors:** run your `verify` step (e.g. list something read-only).
 
+## Open patterns (build it your way) — e.g. reminders
+
+Not everything needs a fixed plugin. Some capabilities are better left as **primitives you compose
+however you like** — reminders are the clearest example. Rather than shipping one opinionated
+"reminders" plugin with a rigid schema, we leave the building block open so you can shape it to how
+*you* think about nudges:
+
+- **The primitive:** the agent can create, list, and cancel scheduled prompts on demand via the
+  `hermes cron` CLI in the VM (`hermes cron create <schedule> "<prompt>" --name <id> --deliver
+  <channel>`, `hermes cron list`, `hermes cron delete <id>`). A "reminder" is just a prompt that
+  fires later and delivers a line to your channel. Check `hermes cron --help` for the exact one-shot
+  vs recurring options on your build.
+- **Build it as a one-off nudge:** "remind me to call the pharmacy at 4pm" → the agent schedules a
+  single fire for today at 16:00 that texts you the reminder, then removes itself.
+- **…or a standing ritual:** a recurring "Friday 5pm: what shipped this week?" prompt.
+- **…or tie it to a connector:** a reminder that re-checks a page (read-url), a place's hours
+  (places), or an email thread before it nudges you.
+
+Keep it open: pick the trigger, the wording, the recurrence, and the delivery that fit you. If you
+*do* want to package a particular flavor as a shareable plugin later, it's an `automation`
+(`hermes.kind: cron`) — but you don't have to. The point is the capability isn't locked to one shape.
+
 ## How the onboarder uses it
 Discover (reads the catalog) → resolve dependencies (`requires.connectors`) → execute your
 `setup` recipe (auto/human/verify) → write the user's profile → done. The full flow is in
 [`../onboarder/playbook.md`](../onboarder/playbook.md).
+
+
+## Sync validation and disabling
+
+Use five-field numeric cron expressions (including lists, ranges and steps). Profile `time`
+overrides the hour/minute while preserving the manifest's calendar-day fields. Unknown IDs,
+duplicate aliases/YAML keys, malformed settings, missing prompts, and disabled required
+connectors block sync before any writes. A new enabled MCP connector must already have its
+recipe-installed server registered under its plugin ID; sync only reconciles that server's
+boolean `enabled` flag. Catalog setup recipes still perform installation and authorization.
+
+Do not describe a manifest security field as OS/API enforcement. Document outbound services,
+shared credential effects, and whether disabling removes a tool surface or only changes agent
+policy; use [PRIVACY.md](PRIVACY.md) as the baseline contract.

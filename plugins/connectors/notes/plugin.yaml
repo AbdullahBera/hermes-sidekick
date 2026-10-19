@@ -14,7 +14,7 @@ security:
   secrets_location: vm
   # NOTE: pointing `path` at a Mac-mounted folder (e.g. an Obsidian vault under /Users/...) lets
   # the agent read+write THAT folder on your Mac — a deliberate crossing of the VM boundary,
-  # scoped to the vault. A VM-local path (backend: local) keeps full isolation. Your choice.
+  # The path is agent policy, not an OS restriction. VM-local storage does not remove host mounts.
 
 setup:
   - human:  "Set connectors.notes.path to your notes folder — an Obsidian vault (mounted at

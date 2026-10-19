@@ -1,6 +1,7 @@
 # Example hermes-sidekick profile.
 # The real one lives in the user's VM at ~/.hermes/sidekick/profile.yaml (never in the repo).
 # It holds CHOICES + SETTINGS only — no secrets. See docs/PROFILE.md.
+# All capabilities start OFF. Enable only after choosing them and verifying their recipe.
 version: 1
 
 core:
@@ -11,7 +12,7 @@ core:
 
 channels:
   signal:
-    enabled: true
+    enabled: false
     allowed_users: ["+1XXXXXXXXXX"]
     home_channel: "+1XXXXXXXXXX"
     reactions: false
@@ -22,7 +23,7 @@ channels:
 
 connectors:
   gmail:
-    enabled: true
+    enabled: false
     important_senders: []          # e.g. ["boss@work.com", "mom@family.com"]
     summary_style: concise
     triage:                        # how email-triage sorts your inbox — YOUR labels, your choice
@@ -34,12 +35,12 @@ connectors:
       create_missing: false        # true = create a mapped label that doesn't exist yet
       hints: "Bank=finance/statements; Travel=flights/hotels; Newsletters=digests; Receipts=orders/payments"
   calendar:
-    enabled: true
+    enabled: false
     default_calendar: primary      # create/edit is granted but always ask-first
   contacts:
-    enabled: true                  # read-only; also fills Google's "Birthdays" calendar
+    enabled: false                  # read-only; also fills Google's "Birthdays" calendar
   location:
-    enabled: true                  # keyless (OSM Nominatim + OSRM) — no key/card
+    enabled: false                  # keyless (OSM Nominatim + OSRM) — no key/card
     provider: osm                  # osm (keyless) | ors (optional, needs a free key)
     units: imperial                # metric | imperial
     mode: driving                  # driving | walking | cycling
@@ -49,57 +50,72 @@ connectors:
       latitude: 40.7128            # example only — replace with your own coordinates
       longitude: -74.0060
   notes:
-    enabled: true                  # keyless local markdown (Obsidian vault or a folder)
+    enabled: false                  # keyless local markdown (Obsidian vault or a folder)
     backend: obsidian              # obsidian | local
     path: "/path/to/your/vault"    # VM path to your notes (an Obsidian vault via the mount, or a VM folder)
     capture: daily                 # daily (append to YYYY-MM-DD.md) | inbox (Inbox.md) | <filename.md>
   tasks:
-    enabled: true                  # keyless local to-do list (markdown checkboxes)
+    enabled: false                  # keyless local to-do list (markdown checkboxes)
     file: "~/.hermes/tasks/tasks.md"   # a VM path (fully isolated) or a Tasks.md in your vault
   research:
-    enabled: true                  # keyless web research + cited answers (DuckDuckGo lite + curl)
+    enabled: false                  # keyless web research + cited answers (DuckDuckGo lite + curl)
     depth: standard                # quick | standard | deep
     max_sources: 5
+  read_url:
+    enabled: false                  # keyless: paste a link, it reads the live page and answers/summarizes
+    max_chars: 6000                # how much of the page text to read per answer
+  places:
+    enabled: false                  # keyless nearby search (OpenStreetMap Overpass); anchors on location.home
+    radius_m: 1500                 # search radius around the anchor point
+    max_results: 8                 # how many nearby matches to consider
+  weather:
+    enabled: false                  # keyless "weather in <place>" (open-meteo); on-demand, any location
+    units: imperial                # imperial (°F, mph) | metric (°C, km/h) — your preference, not the place's
+    forecast_days: 3               # days of outlook to pull
+  translate:
+    enabled: false                  # model-native translation — no third-party translate service is called
+    default_target: ""             # optional language to assume when none is named (e.g. "English")
+    formality: natural             # natural | formal | casual
   web_actions:
-    enabled: true                  # private browser automation IN your VM (see connectors/web-actions)
+    enabled: false                  # private browser automation IN your VM (see connectors/web-actions)
     allowed_domains: []            # optional allowlist; empty = any site (still bound by the ask-first rule)
     always_confirm_before_submit: true  # hard stop before checkout / order / send — never override
 
 automations:
   morning-brief:
-    enabled: true
+    enabled: false
     time: "08:00"
     include: [weather, calendar, email]
     weather:                       # open-meteo (keyless); your coordinates
       latitude: 40.7128            # example only — replace with your own coordinates
       longitude: -74.0060
       units: imperial              # imperial (°F) | metric (°C)
-      label: "San Francisco"       # human name, for the brief text
+      label: "New York"       # human name, for the brief text
   birthday-reminder:
     enabled: false
     time: "08:30"                  # keep off morning-brief's time so they don't pile up
     lead_days: 1
   email-triage:
-    enabled: true
+    enabled: false
     run: with-morning-brief        # with-morning-brief | on-demand
     lookback: "24h"                # how far back to consider
     max_items: 25                  # cap messages examined per run (token budget)
     auto_draft: true               # auto-draft clearly-needed replies, then show them (never send)
     surface: [urgent, people]      # ranked: what to pull into "Needs you" first (rest is filed as noise)
   evening-prep:
-    enabled: true
+    enabled: false
     time: "20:30"                  # an evening slot; keep it out of quiet hours
     include: [calendar, email]
     tight_gap_mins: 20             # flag back-to-backs closer than this
   follow-up-nudges:
-    enabled: true
+    enabled: false
     time: "09:00"                  # silent unless a real person's email has gone unanswered
     stale_after_days: 2
     max_age_days: 10
     max_nudges: 3
     auto_draft: false              # offer + draft on a yes (older threads need your context)
   meeting-prep:
-    enabled: true
+    enabled: false
     time: "07:45"                  # before the morning brief; silent unless you have real meetings
     min_attendees: 2               # only prep events with at least this many people
     lookback_days: 30              # how far back to find your last thread with an attendee

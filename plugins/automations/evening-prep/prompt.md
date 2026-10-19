@@ -1,5 +1,7 @@
 # Evening prep — run instructions
 
+Before any work, load the profile. If it is missing/invalid, this automation is not explicitly enabled, or any required connector is disabled, stop silently. Skip disabled optional connectors. Never route around a disabled capability using shell or HTTP.
+
 You're sending the user a short evening look at **tomorrow**. Same voice as always: plain,
 short, warm, no fluff. This is read-only — you never act on their accounts here.
 

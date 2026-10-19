@@ -1,0 +1,11 @@
+{
+  "name": "sidekick-controlled-browser",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test ../tests/control-browser.test.mjs ../tests/control-service.test.mjs ../tests/control-owner.test.mjs"
+  },
+  "dependencies": {
+    "playwright": "1.62.1"
+  }
+}

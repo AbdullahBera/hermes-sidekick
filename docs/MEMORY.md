@@ -66,3 +66,13 @@ free-form markdown — no cap, no required structure; the assistant appends to i
 Memory holds the most personal data in the system, so it inherits the strictest posture:
 VM-only, ask-first on PII, no secrets, and nothing but redacted templates in the public repo
 (per [`../CLAUDE.md`](../CLAUDE.md)).
+
+
+## Optional controlled memory
+
+The opt-in [control service](CONTROL.md) provides owner-approved memory with inspection and
+forgetting through a private owner CLI. Its MCP adapter can read approved entries and propose
+new ones; it cannot approve its own proposals or delete memory. This store is distinct from
+Hermes-native memory and is not populated from the existing profile automatically. Forgetting
+an entry also redacts its source task payload, but does not remove prior model transcripts,
+other memory stores or backups. Use one intended memory path for a restricted deployment.

@@ -1,0 +1,245 @@
+# Controlled tasks, browser work and owner controls
+
+The new `sidekick_control` service is an executable, opt-in path alongside the existing
+Hermes setup. It does not replace the agent engine or silently migrate the live account.
+It provides durable work, exact owner approvals, bounded browser form execution, approved
+memory, and cancellation/pause/disconnect controls. Existing scheduled automations stay off.
+
+## What works in this version
+
+- Tasks and events survive service restart in private SQLite. Reusing a request key returns
+  the existing task; changing that key's action is rejected. Identical consequential actions
+  with a different key also return the existing accepted/completed/uncertain task.
+- Reads can resume after interruption, with a three-attempt ceiling. Failed reads can be
+  retried explicitly. An interrupted submission becomes **uncertain**, never automatically
+  resent. The owner checks the destination and records completed/not-completed evidence before
+  another attempt is possible. A new attempt still needs a new exact approval.
+- Browser inspection reads page text, links and form descriptions. Form preparation stores
+  the exact target, chosen fields/button and page/form fingerprint; it does not submit or
+  fill a remote form. Owner approval expires after 15 minutes and is tied to the exact digest
+  and connector generation. Immediately before submission, the browser rechecks the page and
+  form. Changes invalidate the attempt. Only one matching POST navigation is permitted; the
+  final request uses a separate HTTP transport without automatic retries, because Chromium
+  can otherwise resend a POST internally after a lost connection. An allowed-origin GET redirect
+  may show the confirmation; redirects requiring another POST are blocked.
+- The owner can inspect tasks, failures and event history; cancel work; pause all work managed
+  by this service; disconnect the browser session; inspect approved memories; and forget one.
+  Pausing prevents new execution and kills the active controlled browser process group.
+  A request already sent may still complete at the destination, so its outcome is held for review.
+- New memory is proposed and explicitly approved. Forget removes it from the memory store and
+  redacts the source task payload. Prior model sessions, Hermes-native memory and backups are
+  separate stores; this command does not erase those. No existing personal memory is imported
+  automatically.
+
+These are execution guarantees for **this service's path**. Raw Hermes shell/browser tools,
+other MCPs, old cron jobs and other sessions are outside it. Do not market this as a universal
+approval firewall for the existing same-user development VM.
+
+## Browser support and limits
+
+The initial adapter supports server-rendered pages and ordinary POST forms with text, email,
+telephone, URL, date/time, numeric, textarea and single-select fields. It deliberately disables
+page JavaScript and blocks scripts, images, fonts and media; a website script cannot secretly
+submit while the agent is inspecting or entering fields. Automated login/password forms, file uploads,
+duplicate field names, pages exceeding the bounded review, script-driven applications and
+unsupported controls require human handoff.
+Payment/identity workflows are outside this initial supported set. Field-name checks are not
+semantic detection of every sensitive field; the owner must review the proposal.
+
+This is an appointment/form workflow, not a universal autonomous browser. An HTTP success means
+the approved submission received a response, not that a business confirmed a booking. Inspect
+the returned confirmation. The service does not retry uncertain outcomes.
+
+Only exact owner-configured HTTPS origins are accessible. Public IPv4 DNS is checked and pinned
+for the browser process; private/link-local addresses and unlisted origins/redirects are blocked.
+IPv6-only origins are currently unsupported. `--dev` additionally permits explicit loopback
+fixture origins. Browser sandboxing stays enabled; a sandbox startup failure is reported, not
+silently worked around. GETs can have side effects on badly designed websites: navigation is
+not a universal proof of read-only server behavior. Use trusted origins and minimal account access.
+
+On Ubuntu versions that restrict unprivileged user namespaces, the administrator must allow
+the installed Chromium executable to create its sandbox through an appropriate AppArmor
+profile. Follow [Chromium's per-executable profile guidance](https://chromium.googlesource.com/chromium/src/+/main/docs/security/apparmor-userns-restrictions.md).
+Use the exact service-private browser path; verify it after browser upgrades. The CI-only
+helper loads profiles for the downloaded test binaries on the disposable hosted runner and
+checks a blank browser launch. It does not alter the global namespace restriction or disable
+Chromium's sandbox. Do not use that CI helper to configure a user's VM.
+
+## The trust boundary
+
+The owner and agent use **different Unix sockets**. Owner methods are absent from the agent
+API even if the request includes a forged role. The owner socket is mode 0600; the agent socket
+is 0660 under the agent group, in a directory the agent cannot modify. The database and browser
+storage belong to the control service account, with directory mode 0700. Owner-supplied
+Playwright storage state is never returned directly by the agent API. Disconnect clears the broker's copy,
+invalidates pending actions and stops the active browser; it is not provider-side revocation.
+Revoke sessions at the provider too when necessary. Keep export files/backups private.
+
+**Production needs a separate OS identity for the agent, with no sudo, privileged groups,
+readable control credentials, writable service code or host filesystem shares.** The installer
+checks this baseline and refuses the current permissive shared-host style of deployment.
+Owner authority cannot be protected from an agent that can become root. Browser sandboxing
+reduces renderer risk; this is not a claim of immunity to OS/browser vulnerabilities.
+
+## Local fixture development (no real accounts)
+
+```bash
+npm --prefix sidekick_control ci --ignore-scripts
+node sidekick_control/node_modules/playwright/cli.js install chromium
+python3 -m unittest discover -s tests -p 'test_control.py' -v
+npm --prefix sidekick_control test
+```
+
+The browser tests use a local fictional appointment server, measure timings, check changed-form
+rejection, and exercise owner approval across a service restart. They do not text anyone or
+connect to a real account. `--dev` uses the current OS identity for both sides, so it tests
+protocol behavior but is **not** a privilege boundary.
+
+To inspect the local service manually, choose private temporary directories and run:
+
+```bash
+python3 -m sidekick_control.service --dev --state /tmp/sidekick-demo-state --sockets /tmp/sidekick-demo-sockets
+# In another terminal:
+python3 -m sidekick_control.cli --socket /tmp/sidekick-demo-sockets/owner.sock status
+```
+
+No work runs until the owner connects an origin and resumes the worker. Never import real
+account storage into a same-user development instance.
+
+## Dedicated Linux VM deployment
+
+Use a fresh VM without host shares, Python 3.11+ with venv/ensurepip, Node 20+, npm, systemd and a dedicated
+unprivileged Hermes account. This is separate from the live development profile. Install
+browser OS dependencies using Playwright's Linux prerequisites before the browser acceptance run.
+
+```bash
+sudo ./scripts/install-control.sh --check --agent-user sidekick-agent
+sudo ./scripts/install-control.sh --apply --agent-user sidekick-agent
+sudo systemctl start sidekick-control
+cd /opt/hermes-sidekick-control
+sudo -u sidekick-control python3 -m sidekick_control.cli status
+```
+
+The installer leaves the service stopped and enables it for future boots. A fresh database is
+paused; a later service restart preserves the owner's existing pause state. Installed code is
+root-owned and the service has a private cache/state directory. No raw Google credentials are
+copied. Install Hermes separately under the unprivileged account, use the restricted configuration
+in `config/controlled-hermes.example.yaml`, and verify its actual exposed tool list before
+connecting accounts. Use `hermes chat --toolsets mcp-sidekick` for the restricted CLI. The
+Sidekick MCP adapter supports proposals, task status, cancellation, read retries, approved-memory
+reads and event cursors. It has no owner approval or resume capability.
+
+The owner connects an exact origin (optionally with a private Playwright storage-state export),
+reviews a prepared task including its target, page, fields, button, digest and expiry, then approves:
+
+```bash
+sudo -u sidekick-control python3 -m sidekick_control.cli connect-browser --origin https://example.com
+sudo -u sidekick-control python3 -m sidekick_control.cli resume
+sudo -u sidekick-control python3 -m sidekick_control.cli tasks
+sudo -u sidekick-control python3 -m sidekick_control.cli task TASK_ID
+sudo -u sidekick-control python3 -m sidekick_control.cli approve TASK_ID --digest EXACT_REVIEWED_DIGEST
+sudo -u sidekick-control python3 -m sidekick_control.cli pause
+sudo -u sidekick-control python3 -m sidekick_control.cli disconnect-browser
+sudo -u sidekick-control python3 -m sidekick_control.cli memories
+sudo -u sidekick-control python3 -m sidekick_control.cli forget MEMORY_ID
+```
+
+All commands run from `/opt/hermes-sidekick-control` on the VM. Stop the service before updating
+its code or taking a consistent private backup of `/var/lib/sidekick-control`. On restore, start
+paused for review; interrupted external tasks remain uncertain. Do not run two service instances
+against one store. The service takes an exclusive process lock. The owner CLI and private web interface are approval
+surfaces; authenticated messaging approvals remain future work. A plain chat “yes” is never
+treated as an authenticated owner approval.
+
+`status` includes worker health. A fatal queue/database error exits the service so systemd
+can restart it and recover interrupted work, instead of leaving a silently dead worker behind.
+The service installer has not yet been accepted on a fresh second-user VM; the fixture suite
+tests execution and protocol behavior without installing system services.
+
+## Conversation behavior
+
+Use the task's concise `message` plus relevant result evidence. Say “prepared” while awaiting
+approval, “working” while running, and “may have gone through” for uncertain outcomes. Never
+report success merely because work was queued or the process restarted. Keep the same request
+key across a repeated tool call. Don't include identifiers/digests in ordinary conversational
+updates; direct approval review to the owner controls. When the user asks about progress, check
+the durable task instead of guessing or starting it again.
+
+Fetch approved memories only when useful; save stable preferences rather than task chatter.
+Read event updates after the last seen cursor and combine related changes into one useful
+update. Do not poll in a tight loop. Unsolicited scheduled follow-ups remain disabled during
+development; this release provides durable updates to retrieve in conversation, not a new
+background message sender.
+
+## Private owner interface and login handoff
+
+The owner interface adds readable action review, exact approve/cancel buttons, pause/resume,
+browser disconnect, and approved-memory inspection/deletion. It is served by the same isolated
+service identity and binds **only to `127.0.0.1`**. It is not part of the public landing page.
+A random owner access key lives in a private VM directory, rotates when the owner web service
+restarts, and is never logged or returned through the agent API. Requests require that key,
+the expected Host and Origin, and JSON content. Page-derived text is rendered as text, not HTML.
+
+No deployment is necessary to run the fictional fixtures. For a future isolated VM deployment,
+install the updated services, start `sidekick-owner`, and forward its loopback port from the
+owner's laptop. These are operator steps, not commands to give the assistant agent:
+
+```bash
+# On the isolated VM, after install-control.sh and Chromium sandbox prerequisites:
+sudo systemctl start sidekick-owner
+cd /opt/hermes-sidekick-control
+sudo -u sidekick-control python3 -m sidekick_control.cli owner-link
+# On your laptop, use the same local port and keep the SSH tunnel open:
+ssh -N -L 127.0.0.1:8765:127.0.0.1:8765 owner@your-vm
+```
+
+Open the private link from the trusted terminal on your laptop. Do not paste the link or its
+key into chat, issue trackers, screenshots, or shared logs. The key is carried in a URL fragment
+and removed from the address bar immediately; it is not sent in HTTP URLs or persisted in
+browser storage. A full page reload needs the link again. Do not expose this HTTP service on a
+public port or put an unauthenticated proxy in front of it. No hosted service is created by these
+code changes; the deployment destination can be chosen later. Stop **both** owner and control
+services before upgrading.
+
+To connect an account:
+
+1. In **Browser connection**, list the exact HTTPS origins Sidekick may use and the sign-in
+   page on one of them. List additional identity-provider or asset origins separately if the
+   login requires them. All browser network access is restricted to this explicit set.
+2. Open **private sign-in**. Controlled tasks pause and any active task browser is stopped.
+   You see a live screenshot of a separate browser in the VM. Click a field, enter text through
+   the private controls, and use the keyboard/scroll buttons. Inputs and screenshots are never
+   exposed through the agent socket, stored in tasks, or recorded in application logs.
+3. This browser is **human-operated**: JavaScript and submissions are enabled, and your clicks
+   can act immediately. Use it only to sign in. It is not an agent-controlled approval bypass.
+   Downloads, service workers and WebSockets are blocked. Password/OTP entry is supported;
+   passkeys requiring a local physical device, some CAPTCHA flows and some provider security
+   policies may need a different handoff. Automated work still supports only the bounded,
+   JavaScript-disabled form workflow described above.
+4. Verify the signed-in account, then choose **Use this signed-in session**. Only cookies and
+   local storage relevant to the task origins are retained; additional login origins are not
+   granted to the assistant. Their unrelated cookies are discarded. Passwords are not exported.
+   Connecting a new session invalidates pending browser tasks and approvals. Work stays paused.
+5. Resume only when ready. Cancelling or pausing destroys the handoff; abandoned handoffs expire
+   after 15 minutes. Broker restarts destroy handoffs through the systemd process group. An
+   existing saved connection is retained if a replacement login is cancelled; disconnect it
+   explicitly to remove it. Disconnect is local removal, not provider-side revocation.
+
+Account session data still belongs to the VM and may enter its private backups. A site could
+itself store sensitive information in a cookie/local-storage entry; granting its origin grants
+access to the corresponding session. The guarantee is that the handoff does not expose raw
+credentials through agent tools, not that all third-party websites handle credentials safely.
+
+For local development, start a `--dev` broker with private temporary state/socket paths, then:
+
+```bash
+python3 -m sidekick_control.owner_web --socket /tmp/sidekick-demo-sockets/owner.sock \
+  --token-file /tmp/sidekick-demo-owner/access-token
+python3 -m sidekick_control.cli owner-link --token-file /tmp/sidekick-demo-owner/access-token
+```
+
+Use fictional accounts only in this same-user setup. The fixture suite exercises the actual
+owner UI, private sign-in, session transfer, a subsequent authenticated inspection, and removal
+on disconnect. It also checks rejected agent login calls, wrong tokens/origins/hosts, expired
+handoffs, and cancellation during session completion. These tests are not a fresh-VM deployment
+or real-provider compatibility trial.

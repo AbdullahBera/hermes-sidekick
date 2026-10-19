@@ -1,12 +1,18 @@
 # hermes-sidekick
 
-Host-side **control folder** ("cockpit") for a self-hosted [Hermes Agent](https://github.com/NousResearch/hermes-agent) running inside an isolated OrbStack Linux VM, using **Claude** as its model.
+Product and operations layer for a self-hosted [Hermes Agent](https://github.com/NousResearch/hermes-agent), with an OrbStack reference setup and an opt-in controlled task service for dedicated Linux VMs.
 
-The agent itself is **not** in this folder — it runs sandboxed in the VM. This repo holds the helper scripts, decisions, and docs used to manage it.
+The agent engine runs in the VM. This repo holds the control service, configuration, helper scripts, tests and deployment docs. Host sharing and OS permissions determine the actual isolation boundary.
 
 > **New here? → [docs/QUICKSTART.md](docs/QUICKSTART.md)** — from zero to a private assistant you text, in ~20 minutes.
 
 ## Vision
+
+The product goal is a **capable everyday assistant you text, hosted on a Linux VM you
+control**—at home or in your own cloud account. It should complete tasks, remember useful
+context and follow up with permission, with guided setup and dependable recovery. The current
+OrbStack setup is the reference deployment; portable deployment and the complete user
+experience are the next milestones in [the roadmap](docs/ROADMAP.md).
 
 The goal is to grow this into an open-source project that lets **anyone — including
 non-technical people — stand up their own private, self-hosted personal AI assistant
@@ -15,7 +21,7 @@ the project handles the rest — provisioning the sandboxed environment, wiring 
 messaging bridge, registering the number, and configuring the agent — through a
 guided, few-step setup.
 
-Today it's a working single-user build assembled by hand (see [`docs/`](docs/)). The
+Today it's a working single-user alpha with scripted setup and a guided agent playbook (see [`docs/`](docs/)). The
 roadmap is to package that same flow into a **push-button installer + setup wizard**,
 so the manual steps (VM provisioning, `signal-cli` registration, services, `.env`)
 happen automatically, safely, and with sensible defaults.
@@ -32,17 +38,17 @@ The design and plugin model live in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 ## Architecture
 
 ```
-macOS host (~/Desktop/projects/hermes-sidekick)   OrbStack VM "hermes" (Ubuntu 26.04, isolated)
+macOS host (local checkout)                     OrbStack VM "hermes" (reference setup)
 ├── scripts/    thin `orb run` wrappers   ──▶   ~/.hermes/
-├── docs/       decisions + redacted backups     ├── config.yaml   (model = claude-opus-4-8)
+├── docs/       decisions + redacted backups     ├── config.yaml   (model = claude-sonnet-5)
 └── .env.example  documents VM keys              ├── .env          (secrets, chmod 600, gitignored)
                                                  ├── hermes-agent/ (code)
                                                  ├── skills/       (71 bundled skills)
                                                  └── sessions/ logs/ cron/ memories/
 ```
 
-- **Isolation:** all of Hermes's shell/file tools run *inside the VM* (`terminal.backend: local`), never on the Mac. Delete everything with `orb delete hermes`.
-- **Model:** direct Anthropic API (`ANTHROPIC_API_KEY`), default `claude-opus-4-8`. Switch to `claude-sonnet-5` for lower cost.
+- **Isolation:** tools execute in Linux, but OrbStack host mounts can expose writable Mac files. VM-local paths alone do not remove that access. Choose and verify your boundary in [docs/PRIVACY.md](docs/PRIVACY.md).
+- **Model:** direct Anthropic API (`ANTHROPIC_API_KEY`), bootstrap default `claude-sonnet-5`; choose a different supported model during setup.
 
 ## Prerequisites
 
@@ -78,14 +84,30 @@ macOS host (~/Desktop/projects/hermes-sidekick)   OrbStack VM "hermes" (Ubuntu 2
 
 ## Security
 
-- Secrets live only in the VM's `~/.hermes/.env` (chmod 600), never in this repo.
+- Secrets stay in private VM storage, never in this repo. The reference Hermes setup uses `~/.hermes/.env` (chmod 600); the optional control service isolates browser session storage under its own OS identity.
 - **Automated secret scanning:** [gitleaks](https://github.com/gitleaks/gitleaks) runs as a
   pre-commit hook (`.pre-commit-config.yaml`) and in CI on every push (`.github/workflows/secret-scan.yml`),
   tuned via `.gitleaks.toml`. Enable the local hook once with `pip install pre-commit && pre-commit install`.
 - `backup-config.sh` redacts all secret values before writing to the host.
-- The VM is the trust boundary: prompt-injection or a misbehaving tool is confined to the VM, not your Mac. Keep untrusted web browsing and secret-holding sessions separate.
+- Host mounts and credentials determine the actual access boundary; prompt instructions are not an OS sandbox. See [privacy and disabling guarantees](docs/PRIVACY.md).
 
 ## Status
 
-✅ VM + Hermes v0.20.0 · ✅ **Signal** transport live · ✅ model `claude-sonnet-5` · ✅ web search (keyless) · ✅ **Gmail** ([read + draft, never send](plugins/connectors/gmail/recipe.md)) · ✅ **Calendar** ([read + write, ask-first](plugins/connectors/calendar/recipe.md)) · ✅ **Contacts** ([read-only](plugins/connectors/contacts/recipe.md)) — all private, ask-first on any write.
-Next: proactivity (morning brief: calendar + flagged email), and persistent memory.
+The reference alpha has Hermes, Signal, Claude, web search, Gmail, Calendar and Contacts configured. Its ask-first and no-send instructions are behavioral policies; see [actual capability boundaries](docs/PRIVACY.md).
+Also implemented: morning brief, email triage, birthday reminders, evening prep, follow-up
+nudges, meeting prep, profile-driven configuration, and two-tier memory instructions. The
+catalog has 20 plugins, including keyless notes, tasks, research, read-url, places, weather,
+and translation. The site is a static landing page, not a setup wizard.
+
+Current focus: reliable, repeatable onboarding for a second user. Bootstrap verifies runtime
+prerequisites; a fresh profile starts with every capability **off**. Sync validates before
+changing state, reconciles automation crons and the named Google MCP servers, and reports
+failures. [Verification commands](docs/TESTING.md) · [second-user trial (pending)](docs/ONBOARDING-TRIAL.md).
+
+The [controlled task service](docs/CONTROL.md) adds durable tasks and failures, exact owner
+approvals, bounded browser form submissions, pause/disconnect, and approved-memory controls.
+It is opt-in and requires separate agent/service OS identities for enforcement. Local appointment
+fixtures verify restart recovery, lost responses and duplicate prevention; general websites and
+a second user's real accounts still need acceptance testing. Live scheduled runs remain paused
+during development. The private owner interface supports action review and human login handoff over an SSH tunnel.
+Authenticated chat approvals and real-provider login acceptance are still pending.

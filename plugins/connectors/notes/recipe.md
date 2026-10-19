@@ -1,18 +1,15 @@
 # Notes — keyless, local, private
 
-Capture and recall notes as plain **markdown files** — no API, no token, nothing leaves the
-machine. Works with an **Obsidian vault** or any folder of `.md` files. The agent captures by
+Capture and recall notes as plain **markdown files** — no separate storage API or token. Content read by the agent may enter model context. Works with an **Obsidian vault** or any folder of `.md` files. The agent captures by
 **appending** to a note and recalls by searching the folder.
 
 ## Security posture
 - **Keyless + local:** the agent uses its own file/terminal tools; your notes stay on disk.
 - **Append/create only:** it appends to your capture file or creates a new note — it **never
   edits or deletes** existing notes.
-- **The VM-boundary tradeoff (read this):** if `path` points at a **Mac-mounted** folder (an
-  Obsidian vault under `/Users/...`, visible in the VM via OrbStack), the agent can **read and
-  write that folder on your Mac** — a deliberate crossing of the VM sandbox, *scoped to the
-  vault*. If you'd rather keep full isolation, use a **VM-local** folder (`backend: local`,
-  e.g. `~/.hermes/notes`) — the agent never touches the Mac then.
+- **Filesystem boundary:** Mac-mounted folders are accessible with the VM user's permissions.
+  The configured vault path is agent policy, not an OS restriction to that folder. Using a
+  VM-local folder does not remove existing host mounts. See [PRIVACY.md](../../../docs/PRIVACY.md).
 - **Injection-safe:** note contents are treated as data, never instructions.
 
 ## Setup

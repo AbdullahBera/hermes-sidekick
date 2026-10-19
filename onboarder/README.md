@@ -21,3 +21,6 @@ stages this repo and your model key into the VM, and hands you to the onboarder.
 itself is a playbook an agent executes — either the Hermes agent in the VM, or a coding agent
 (e.g. Claude Code) pointed at this repo: it loads `playbook.md`, reads the catalog, and walks
 the user through setup, pausing only for human checkpoints.
+
+Bootstrap now verifies runtime stages and starts with all capabilities off. Use `./bootstrap.sh --launch` from this directory to open interactive chat, then enter the displayed instruction.
+Fresh-account acceptance remains pending; follow [the trial checklist](../docs/ONBOARDING-TRIAL.md).

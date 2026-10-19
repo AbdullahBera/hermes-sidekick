@@ -4,7 +4,7 @@ category: connector
 summary: Read your schedule and free/busy, and create or edit events (ask-first).
 
 requires:
-  connectors: [gmail]       # reuses the same Google OAuth client + token as Gmail
+  connectors: []            # shares Google OAuth credentials; Gmail tools need not be enabled
   human:
     - google_calendar_api   # enable the Calendar API in the same project
     - oauth_consent         # re-approve to add the calendar.readonly scope

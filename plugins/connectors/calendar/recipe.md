@@ -52,3 +52,7 @@ sudo systemctl restart hermes-gateway
 If you'd rather the agent never touch your calendar, swap `calendar:full` for
 `calendar:readonly` in steps 2 and 3 and re-auth. You keep the brief and conflict
 checks; you lose event create/edit/delete.
+
+Google OAuth setup can be shared without enabling Gmail tools. If only this connector is
+chosen, omit Gmail permissions from the example authorization command and do not register a
+Gmail MCP server. Request only the selected connector scopes.

@@ -1,5 +1,7 @@
 # Follow-up nudges — run instructions
 
+Before any work, load the profile. If it is missing/invalid, this automation is not explicitly enabled, or any required connector is disabled, stop silently. Skip disabled optional connectors. Never route around a disabled capability using shell or HTTP.
+
 You're catching emails from real people that the user received a few days ago and hasn't
 replied to — the ones that quietly slip. Same voice: plain, short, warm. **Silent unless there's
 something genuinely dropped.** You never send.

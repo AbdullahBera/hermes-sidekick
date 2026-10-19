@@ -1,15 +1,14 @@
 # Tasks — keyless, local, private
 
 A to-do list you manage by text, stored as a plain **markdown file** of checkboxes. No API, no
-account — the agent reads and updates the file with its own tools. Nothing leaves the machine.
+account — the agent reads and updates the file with its own tools. There is no separate task-storage service; task content can enter model context.
 
 ## Security posture
 - **Keyless + local:** it's one markdown file (`connectors.tasks.file`); your list stays on disk.
 - **Add / tick only:** the agent appends new tasks and flips `- [ ]` → `- [x]`. It **never deletes**
   a task without an explicit "yes".
-- **Boundary note:** a VM path (e.g. `~/.hermes/tasks/tasks.md`) keeps full isolation. Pointing at a
-  file in a Mac-mounted Obsidian vault lets the agent write that file on your Mac (scoped to that
-  file) — the same trade-off as the Notes connector.
+- **Boundary note:** a VM path (e.g. `~/.hermes/tasks/tasks.md`) keeps the task file in the VM; existing host mounts remain accessible. Pointing at a
+  file in a Mac-mounted Obsidian vault lets the agent write that file on your Mac (the chosen path is policy, not a filesystem access restriction) — the same trade-off as the Notes connector.
 - **Injection-safe:** task text is data, never instructions.
 
 ## Setup

@@ -93,6 +93,11 @@ until a destination is available; no new host has been provisioned.
 - [Second-user fresh-account trial](ONBOARDING-TRIAL.md) remains **pending human participation**.
 
 ## 🎯 Current focus
+Explore a persistent personal agent with local inference and owner-editable Obsidian
+memory using the [local personal agent plan](LOCAL-AGENT-PLAN.md). Begin with grounded
+conversation and durable drafts, then one explicitly enabled check-in. This remains
+planned work; existing scheduled runs stay paused during development.
+
 The ordered product milestones above set current priorities. The capability and distribution
 items below are supporting work and backlog, not a parallel commitment to expand every feature.
 

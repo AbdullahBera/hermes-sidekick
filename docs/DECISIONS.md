@@ -157,7 +157,95 @@ Bootstrap verifies runtime stages and starts new profiles with capabilities disa
 read-only health checks are implemented. Fresh second-user Google OAuth, Signal registration,
 and scheduled delivery remain pending the participant trial in ONBOARDING-TRIAL.md.
 
+## Local-first direction (2026-10-24)
+
+### A local model coordinates; hosted models are narrow exceptions
+Personal conversations, health and financial records, notes, memory, embeddings and logs are
+processed on the owner's devices. A local model is the coordinator. We considered the reverse,
+a hosted model that routes sensitive questions to the local one, and rejected it: the router
+must read every message to decide, so private messages would reach the cloud first, and the
+router would also see the local model's answers and the whole conversation history.
+
+Two exceptions are deliberate and narrow. Coding work goes to Claude Code with a scoped brief
+and the project's files; the worker may search the web for coding or other non-personal work.
+General questions go to Claude only when the owner prefixes them with `claude:`, without
+history or memory. There is no silent fallback to a hosted model.
+
+### Enforce privacy with architecture, not prompts
+Separate OS accounts per zone, outbound traffic blocked by default, and brokers that build
+every outbound request. An agent with private data, untrusted content and a way to send data
+out (the "lethal trifecta"; Meta's "Rule of Two") is exposed to prompt injection, and
+published adaptive attacks break most detection-based defenses. So outbound actions after
+untrusted content enters a turn need a pre-made plan or owner approval (the taint rule), raw
+web pages are read by a separate local-model context with no tools or private data, and
+fixed query rules modeled on the HIPAA Safe Harbor identifiers check every query. These reduce
+risk; they do not guarantee anonymity.
+
+### Exa for search
+Google's Custom Search JSON API is closed to new customers and scheduled to shut down on
+2027-01-01. Exa remains. Its general privacy policy allows using query data to improve its
+products, including training; API customers are governed by their agreement. Queries are
+therefore minimal and general by design.
+
+### MLX first for local inference
+Inference runs natively on macOS because a Linux VM does not get Metal acceleration. MLX is
+evaluated first because it is built for Apple Silicon. Model choice follows measured tool-call
+reliability, query-rewriting leaks, extraction accuracy, latency and memory headroom.
+
+### Sim for workflows, private tier first
+[Sim](https://github.com/simstudioai/sim) (Apache-2.0) is self-hosted in its own VM with local
+models only. Its hosted Chat/Copilot service, remote code sandboxes, telemetry and cloud
+providers are disabled. Workflows that read private data cannot send anything out; public and
+mixed workflows come later, one integration at a time.
+
+### Personal notes vault stays out of cloud work
+The owner's notes vault is personal data. It is excluded from the coding worker's project
+registry and is handled only by the local model.
+
+### Correction: Claude Code programmatic use
+The 2026-08-03 entry said there is no separate Claude Code API. Programmatic use goes through
+the Agent SDK or `claude -p`; the recommended scripted mode, `--bare`, authenticates with an
+API key rather than a subscription login, and Agent SDK products are expected to use API keys.
+API (commercial) terms exclude training on prompts; consumer plans may train when that
+setting is on. The coding worker therefore uses its own API key with a spending limit.
+
+### Memory: an approved source of truth, not an agent-managed memory (2026-10-24)
+Personal memory is an approved-memory store with source, date and explicit/inferred labels;
+search indexes are derived from it and rebuilt after deletions; research stays in a separate
+untrusted cache. Letta was rejected for now: it is a full agent runtime whose agents edit their
+own pinned memory, which would compete with Hermes and make a successful injection persist in
+every prompt. Mem0 (an official Hermes provider with a local mode) captures and rewrites facts
+after every turn without approval and sends telemetry by default, so it is only a candidate
+for extraction and search with automatic capture constrained. A Phase 1 bake-off decides.
+
+### VM isolation: OrbStack isolated machines plus one forwarded port (2026-10-24)
+Phase 0 showed that an ordinary OrbStack VM can reach every service on the Mac's loopback
+interface, so "listen on 127.0.0.1" does not keep a service away from VMs. `--isolated` removes
+the Mac filesystem but still allowed loopback access in testing; `--isolated --isolate-network`
+blocks the Mac and other VMs while keeping internet access. The Mac then opens a reverse SSH
+tunnel over the `orb` command channel to forward only the inference port (OrbStack's own SSH
+proxy does not allow reverse forwarding). The forwarded port still needs a token and a
+per-account firewall rule inside the VM.
+
+### Phase 0 findings
+The reference VM has host filesystem mounts, and the default home and Conductor folder
+permissions let other local accounts read workspaces. Both must change before private data
+(Phase 1) and before a separate coding account (Phase 3). Details are in
+[LOCAL-AGENT-PLAN.md](LOCAL-AGENT-PLAN.md).
+
+### Model and runtime: Qwen3.6-35B-A3B on mlx-lm (2026-10-24)
+Benchmarked on synthetic data (results in LOCAL-AGENT-PLAN.md). The mixture-of-experts model
+matched the others on tool calls and extraction and was the fastest: 65 tokens/s on mlx-lm
+versus 39 on Ollama's llama.cpp engine and 25 on Ollama's MLX engine for the same model, with
+equal prompt-cache reuse across turns. The dense 27B was about 6 times slower. Ollama stays,
+in local-only mode, for embeddings (`qwen3-embedding:0.6b` with a 2K context). Because
+`mlx_lm.server` is not hardened, Phase 1 adds an authenticated proxy. Memory is the main risk:
+the model peaks at 22–23 GB at long contexts on a 32 GB host.
+
 ## Open / next
+- Phase 1: isolated VM, authenticated inference proxy and tunnel, local-only Hermes, memory
+  bake-off, all on synthetic data.
 - Complete the fresh-account second-user trial and record actual delivery evidence.
-- Choose an always-on host if laptop sleep continues to delay scheduled routines.
+- Always-on host: an Apple Silicon Mac mini is the intended host. Nothing migrates before the
+  Phase 1 gate, and old scheduled routines are not re-enabled automatically.
 - Further permission enforcement must happen outside the model; prompt rules are not a sandbox.

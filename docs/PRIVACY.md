@@ -1,5 +1,10 @@
 # Privacy and capability boundaries
 
+> **Planned change:** the project is moving to a local-first design in which a local model
+> handles personal data and only narrow, explicit flows leave the machine. See the
+> [local-first plan](LOCAL-AGENT-PLAN.md). **It is not implemented yet.** Everything below
+> describes the current deployment, which sends conversations to a hosted model.
+
 Sidekick runs Hermes inside a Linux VM. That separates Linux processes from native Mac
 processes, but **a VM with host filesystem sharing is not a filesystem sandbox for your Mac**.
 OrbStack's reference setup exposes host directories including `/Users` and `/mnt/mac`.

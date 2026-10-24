@@ -30,6 +30,9 @@ docs/backups/*.env.raw
 # Internal strategy notes — never publish
 *.local.md
 
+# Local benchmark results and generated synthetic packs (never commit)
+.bench/
+
 # Python verification artifacts
 __pycache__/
 *.pyc

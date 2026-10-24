@@ -49,8 +49,10 @@ class BenchError(RuntimeError):
 class Client:
     """Minimal OpenAI-compatible chat client."""
 
-    def __init__(self, base_url: str, model: str, timeout: float = 600.0):
+    def __init__(self, base_url: str, model: str, timeout: float = 600.0,
+                 extra: Optional[Dict] = None):
         self.base_url, self.model, self.timeout = base_url.rstrip('/'), model, timeout
+        self.extra = extra or {}   # added to every chat request, e.g. {"reasoning_effort": "none"}
 
     def _request(self, path: str, body: Optional[Dict] = None):
         data = json.dumps(body).encode() if body is not None else None
@@ -63,7 +65,7 @@ class Client:
             return [item.get('id', '') for item in json.load(response).get('data', [])]
 
     def chat(self, messages: List[Dict], **params) -> Dict:
-        body = {'model': self.model, 'messages': messages, 'temperature': 0, **params}
+        body = {'model': self.model, 'messages': messages, 'temperature': 0, **self.extra, **params}
         try:
             with self._request('/chat/completions', body) as response:
                 return json.load(response)
@@ -79,7 +81,7 @@ class Client:
         return [item['embedding'] for item in sorted(data, key=lambda item: item.get('index', 0))]
 
     def stream(self, messages: List[Dict], max_tokens: int = 128) -> Dict:
-        body = {'model': self.model, 'messages': messages, 'temperature': 0,
+        body = {'model': self.model, 'messages': messages, 'temperature': 0, **self.extra,
                 'max_tokens': max_tokens, 'stream': True}
         start, first, chunks, text = time.monotonic(), None, 0, []
         with self._request('/chat/completions', body) as response:
@@ -345,11 +347,14 @@ def suite_b4(client: Client, pack: Dict, opts: Optional[Dict] = None) -> Dict:
         long_runs.append({'tokens_approx': size, 'ttft_s': run['ttft_s'], 'total_s': run['total_s'],
                           'needle_found': NEEDLE_ANSWER in run['text']})
     cached = None
-    if long_runs:   # same long prefix, new question: shows whether the server reuses its prompt cache
+    if long_runs:   # a follow-up turn after a long prompt: shows whether the server reuses its cache
         size = long_runs[0]['tokens_approx']
-        cached = client.stream([{'role': 'user', 'content': long_prompt(
-            size, seed=size, question='How many log entries mention bread? Reply with a number.')}],
-            max_tokens=16)['ttft_s']
+        first = long_prompt(size, seed=size)
+        answer = client.stream([{'role': 'user', 'content': first}], max_tokens=16)['text']
+        cached = client.stream([{'role': 'user', 'content': first},
+                                {'role': 'assistant', 'content': answer or NEEDLE_ANSWER},
+                                {'role': 'user', 'content': 'Thanks. Reply with the word done.'}],
+                               max_tokens=8)['ttft_s']
     return {'median_ttft_s': statistics.median(ttfts) if ttfts else None,
             'median_total_s': statistics.median(run['total_s'] for run in runs),
             'median_chunks_per_s': statistics.median(run['chunks'] / run['total_s'] for run in runs),
@@ -449,6 +454,8 @@ def main(argv: List[str]) -> int:
     parser.add_argument('--embeddings-base-url', help='defaults to --base-url')
     parser.add_argument('--seed', type=int, default=7, help='synthetic pack seed')
     parser.add_argument('--out', type=Path, help='results JSON path (default: .bench/ in the repo)')
+    parser.add_argument('--extra-body', default='{}',
+                        help='JSON merged into chat requests, e.g. {"reasoning_effort": "none"}')
     parser.add_argument('--allow-nonloopback', action='store_true')
     args = parser.parse_args(argv)
     suites = [s.strip() for s in args.suites.split(',') if s.strip()]
@@ -459,14 +466,16 @@ def main(argv: List[str]) -> int:
         embed_url = args.embeddings_base_url or args.base_url
         for url in (args.base_url, embed_url):
             require_loopback(url, args.allow_nonloopback)
-        client = Client(args.base_url, args.model)
+        extra = json.loads(args.extra_body)
+        client = Client(args.base_url, args.model, extra=extra)
         served = client.models()
         opts = {'long_context': [int(n) for n in args.long_context.split(',') if n.strip()],
                 'embedder': Client(embed_url, args.embedding_model) if args.embedding_model else None}
         meta = {'time': datetime.now(timezone.utc).isoformat(timespec='seconds'),
                 'model': args.model, 'served_models': served, 'runtime': args.runtime,
                 'quantization': args.quantization, 'seed': args.seed, 'host': host_info(),
-                'embedding_model': args.embedding_model, 'long_context': opts['long_context']}
+                'embedding_model': args.embedding_model, 'long_context': opts['long_context'],
+                'extra_body': extra}
         results = run(client, suites, synthetic_pack.build(args.seed), meta, opts)
     except (BenchError, OSError, ValueError) as error:
         print(f'FAIL {error}', file=sys.stderr)

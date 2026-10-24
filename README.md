@@ -26,6 +26,11 @@ roadmap is to package that same flow into a **push-button installer + setup wiza
 so the manual steps (VM provisioning, `signal-cli` registration, services, `.env`)
 happen automatically, safely, and with sensible defaults.
 
+**Direction: local-first.** The next architecture keeps personal data on your own devices: a
+local model coordinates, web searches stay minimal, and hosted models are used only for
+explicit exceptions such as delegated coding. It is planned, not built; see the
+[local-first plan](docs/LOCAL-AGENT-PLAN.md).
+
 ## Built on Hermes Agent
 
 hermes-sidekick is a thin, security-first product layer on top of
@@ -99,7 +104,8 @@ nudges, meeting prep, profile-driven configuration, and two-tier memory instruct
 catalog has 20 plugins, including keyless notes, tasks, research, read-url, places, weather,
 and translation. The site is a static landing page, not a setup wizard.
 
-Current focus: reliable, repeatable onboarding for a second user. Bootstrap verifies runtime
+Current focus: the [local-first plan](docs/LOCAL-AGENT-PLAN.md). Phase 0 is complete: it chose a
+local model and runtime from measurements and verified the isolation approach. Phase 1 is next. The second-user trial remains pending. Bootstrap verifies runtime
 prerequisites; a fresh profile starts with every capability **off**. Sync validates before
 changing state, reconciles automation crons and the named Google MCP servers, and reports
 failures. [Verification commands](docs/TESTING.md) · [second-user trial (pending)](docs/ONBOARDING-TRIAL.md).

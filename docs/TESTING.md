@@ -44,6 +44,22 @@ sync, so avoid simultaneous administration. A failed reload leaves a marker so r
 even if the files already match.
 
 
+## Local-first Phase 0
+
+The query-rule checker, synthetic persona pack and benchmark harness have unit tests that need
+no model (`tests/test_query_policy.py`, `tests/test_local_bench.py`). Against a model server on
+loopback, and on the Mac host:
+
+```bash
+./scripts/mac-baseline.sh      # read-only: hardware, memory, VM host shares, folder permissions
+python3 scripts/lib/local_bench.py --base-url http://127.0.0.1:8080/v1 --model <model-id>
+```
+
+The benchmark sends only synthetic data, refuses non-loopback endpoints by default, and writes
+results to the ignored `.bench/` folder. Add `--suites b1,b2,b3,b4,b7 --embedding-model <id>` for
+embeddings, and `--extra-body '{"reasoning_effort": "none"}'` for servers that think by default. Suites, thresholds and later-phase tests are in
+[LOCAL-AGENT-TESTS.md](LOCAL-AGENT-TESTS.md).
+
 The new controlled execution path has additional SQLite/socket tests in `test_control.py` and
 real Chromium fixture tests. See [CONTROL.md](CONTROL.md) for commands, supported browser forms,
 restart/duplicate-action cases, and the OS identity requirements for owner-only approvals.

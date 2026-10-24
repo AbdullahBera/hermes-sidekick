@@ -65,6 +65,11 @@ The goal is simple: make a self-hosted Hermes assistant usable by someone who ca
      Claude (model) · the user's isolated VM (all secrets, chmod 600)
 ```
 
+### Planned: local-first
+The current diagram shows a hosted model. The planned architecture replaces it with a local
+model on the host, separate zones for private data, search and coding, and a self-hosted Sim
+instance for workflows. See [LOCAL-AGENT-PLAN.md](LOCAL-AGENT-PLAN.md). It is not built yet.
+
 ## Plugin model
 
 Runtime boundaries and what disabling guarantees are documented in [PRIVACY.md](PRIVACY.md).

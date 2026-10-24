@@ -1,0 +1,27 @@
+# Coding-worker project registry (Phase 3), example only.
+#
+# The local coordinator may delegate coding only to workspaces listed here with allow: true.
+# Anything not listed is refused. Keep the real file outside this repository, for example
+# ~/.config/hermes-sidekick/coding-projects.yaml (chmod 600), because workspace names and
+# paths can describe your life.
+#
+# Local Conductor workspaces are created by you in the Conductor app; there is no API for
+# that, so the coordinator asks you to create one when a request has no match.
+version: 1
+projects:
+  hermes-sidekick:
+    allow: true
+    workspaces_dir: ~/conductor/workspaces/hermes-sidekick   # each workspace is a git worktree
+    repo_root: ~/conductor/repos/hermes-sidekick              # worktree metadata lives here
+    base_branch: main
+    may_commit: true      # local commits on the workspace branch only
+    may_push: false       # never pushes or opens PRs
+    web_search: true      # the worker may search and fetch public pages for coding work
+
+  personal-notes-vault:
+    allow: false          # personal data: handled only by the local model, never by a cloud worker
+    reason: personal notes
+
+# Unlisted projects are refused. Add a project only after checking that its repository holds
+# no personal records or real secrets (Conductor copies .env* files into new workspaces by
+# default; the worker is denied reading them, but the safest repo has none).
